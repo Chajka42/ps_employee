@@ -9,3 +9,7 @@ spring:
     password: root_password
   flyway:
     enabled: false
+
+ps:
+  app:
+    version: 102
