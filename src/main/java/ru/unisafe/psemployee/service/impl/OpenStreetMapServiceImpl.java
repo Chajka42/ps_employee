@@ -1,11 +1,13 @@
 package ru.unisafe.psemployee.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.service.OpenStreetMapService;
 
+@Slf4j
 @Service
 public class OpenStreetMapServiceImpl implements OpenStreetMapService {
 

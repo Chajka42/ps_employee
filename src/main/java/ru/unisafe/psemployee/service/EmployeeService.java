@@ -16,7 +16,5 @@ public interface EmployeeService {
 
     Mono<String> tokenCheck(Map<String, List<String>> queryParams);
 
-    Mono<String> processLocationUpdate(String token, String lat, String lon);
-
     Mono<String> tokenGet(String oldToken);
 }

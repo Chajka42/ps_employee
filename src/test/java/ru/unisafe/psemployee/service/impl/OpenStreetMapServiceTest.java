@@ -1,9 +1,10 @@
 package ru.unisafe.psemployee.service.impl;
 
-
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.test.StepVerifier;
+
 
 class OpenStreetMapServiceTest {
 
@@ -17,10 +18,13 @@ class OpenStreetMapServiceTest {
         double longitude = 37.48914487704136;
 
         StepVerifier.create(openStreetMapService.getAddressFromCoordinates(latitude, longitude))
-                .consumeNextWith(address -> {
+                .assertNext(address -> {
                     System.out.println("Ответ от API: " + address);
-                    assert address != null && !address.isEmpty();
+                    Assertions.assertNotNull(address, "Адрес не должен быть null");
+                    Assertions.assertFalse(address.isEmpty(), "Адрес не должен быть пустым");
+                    Assertions.assertTrue(address.contains("Филёвский бульвар"), "Адрес должен содержать Филевский бульвар");
                 })
                 .verifyComplete();
     }
+
 }

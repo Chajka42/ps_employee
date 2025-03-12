@@ -118,8 +118,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 });
     }
 
-    @Override
-    public Mono<String> processLocationUpdate(String token, String lat, String lon) {
+    private Mono<String> processLocationUpdate(String token, String lat, String lon) {
         return employeeRepository.getEmployeeOriginId(token)
                 .flatMap(id -> {
                     double latitude = Double.parseDouble(lat);
