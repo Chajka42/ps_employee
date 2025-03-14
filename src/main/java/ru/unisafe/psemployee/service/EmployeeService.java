@@ -2,10 +2,10 @@ package ru.unisafe.psemployee.service;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.unisafe.psemployee.dto.Employee;
+import ru.unisafe.psemployee.dto.EmployeeDto;
 
 public interface EmployeeService {
-    Flux<Employee> getAllEmployees();
+    Flux<EmployeeDto> getAllEmployees();
 
-    Mono<Employee> getEmployeeById(int id);
+    Mono<EmployeeDto> getEmployeeById(int id);
 }

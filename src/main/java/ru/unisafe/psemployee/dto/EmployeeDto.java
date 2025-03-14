@@ -1,6 +1,6 @@
 package ru.unisafe.psemployee.dto;
 
-public record Employee(
+public record EmployeeDto(
         Integer id,
         String token,
         String name,

@@ -3,12 +3,10 @@ package ru.unisafe.psemployee.repository;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
-import org.jooq.Record1;
-import org.jooq.tools.json.JSONObject;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.unisafe.psemployee.dto.Employee;
+import ru.unisafe.psemployee.dto.EmployeeDto;
 
 import java.util.Optional;
 
@@ -24,14 +22,14 @@ public class EmployeeRepository {
         this.dsl = dsl;
     }
 
-    public Flux<Employee> findAll() {
+    public Flux<EmployeeDto> findAll() {
         return Flux.from(dsl
                         .select()
                         .from("employee"))
                 .map(this::mapToEmployee);
     }
 
-    public Mono<Employee> findById(int id) {
+    public Mono<EmployeeDto> findById(int id) {
         return Mono.from(dsl
                         .select()
                         .from("employee")
@@ -39,7 +37,7 @@ public class EmployeeRepository {
                 .map(this::mapToEmployee);
     }
 
-    public Mono<Void> save(Employee employee) {
+    public Mono<Void> save(EmployeeDto employee) {
         return Mono.from(dsl
                         .insertInto(table("employee"),
                                 field("token"), field("name"), field("access"), field("partner_id"))
@@ -47,8 +45,8 @@ public class EmployeeRepository {
                 .then();
     }
 
-    private Employee mapToEmployee(Record record) {
-        return new Employee(
+    private EmployeeDto mapToEmployee(Record record) {
+        return new EmployeeDto(
                 record.get(field("id", Integer.class)),
                 record.get(field("token", String.class)),
                 record.get(field("name", String.class)),
@@ -57,7 +55,7 @@ public class EmployeeRepository {
         );
     }
 
-    public Mono<Optional<Employee>> findEmployeeByPassFunction(String passFunction) {
+    public Mono<Optional<EmployeeDto>> findEmployeeByPassFunction(String passFunction) {
         return Mono.from(dsl
                         .select(field("id", Integer.class),
                                 field("name", String.class),
