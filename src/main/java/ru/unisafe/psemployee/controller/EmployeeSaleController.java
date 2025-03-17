@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+import ru.unisafe.psemployee.dto.response.BlockSaleResponseDto;
+import ru.unisafe.psemployee.dto.response.SaleDtoResponse;
 import ru.unisafe.psemployee.service.EmployeeSaleHandler;
 
 import java.util.List;
@@ -21,7 +23,12 @@ public class EmployeeSaleController {
     private final EmployeeSaleHandler employeeSaleHandler;
 
     @GetMapping("/getSaleJson")
-    public Mono<String> getSaleJson(@RequestParam String login) {
+    public Mono<SaleDtoResponse> getSaleJson(@RequestParam String login) {
         return employeeSaleHandler.getSaleJson(login);
+    }
+
+    @GetMapping("/blockSale")
+    public Mono<BlockSaleResponseDto> blockSale(@RequestParam("partner_id") Integer partnerId, @RequestParam Integer id) {
+        return employeeSaleHandler.blockSale(partnerId, id);
     }
 }

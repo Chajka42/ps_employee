@@ -6,7 +6,7 @@ spring:
   r2dbc:
     url: r2dbc:mysql://localhost:3307/ps_db
     username: root
-    password: root_password
+    password: mIXmKg2kzePV
   flyway:
     enabled: false
 

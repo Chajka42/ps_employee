@@ -3,7 +3,7 @@ package ru.unisafe.psemployee.enums;
 import lombok.Getter;
 
 @Getter
-public enum PartnerId {
+public enum PartnerEnum {
 
     MTS(3),
     MEGAFON(5),
@@ -13,12 +13,12 @@ public enum PartnerId {
 
     private int partnerId;
 
-    PartnerId(int partnerId) {
+    PartnerEnum(int partnerId) {
         this.partnerId = partnerId;
     }
 
-    public static PartnerId fromId(int id) {
-        for (PartnerId partner : values()) {
+    public static PartnerEnum fromId(int id) {
+        for (PartnerEnum partner : values()) {
             if (partner.getPartnerId() == id) {
                 return partner;
             }
