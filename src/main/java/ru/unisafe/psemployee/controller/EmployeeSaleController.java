@@ -31,6 +31,6 @@ public class EmployeeSaleController {
 
     @PostMapping("/addSale")
     public Mono<SaleResponseDto> addSale(@RequestBody AddSaleRequest requestDto) {
-        return null;
+        return employeeSaleHandler.addSale(requestDto);
     }
 }

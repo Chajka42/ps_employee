@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.dto.TableSaleInfo;
 import ru.unisafe.psemployee.dto.response.BlockSaleResponseDto;
 import ru.unisafe.psemployee.dto.response.MessageDto;
+import ru.unisafe.psemployee.dto.response.SaleResponseDto;
 
 import java.util.List;
 
@@ -40,6 +41,19 @@ public class SalesRepository {
                     log.info("Результат операции: {}", msg);
                     return Mono.just(new BlockSaleResponseDto(true, List.of(new MessageDto(msg))));
                 });
+    }
+
+    public Mono<Integer> addSale(String stationCode,
+                                 String stationLogin,
+                                 String receipt,
+                                 String article,
+                                 String date,
+                                 int model,
+                                 String time,
+                                 long serverTime,
+                                 int type) {
+
+        return Mono.just(0);
     }
 
 }

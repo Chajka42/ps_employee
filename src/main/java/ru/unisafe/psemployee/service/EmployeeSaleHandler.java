@@ -1,6 +1,7 @@
 package ru.unisafe.psemployee.service;
 
 import reactor.core.publisher.Mono;
+import ru.unisafe.psemployee.dto.request.AddSaleRequest;
 import ru.unisafe.psemployee.dto.request.BlockSaleDto;
 import ru.unisafe.psemployee.dto.request.SaleRequestDto;
 import ru.unisafe.psemployee.dto.response.BlockSaleResponseDto;
@@ -10,4 +11,6 @@ public interface EmployeeSaleHandler {
     Mono<SaleResponseDto> getSaleJson(SaleRequestDto requestDto);
 
     Mono<BlockSaleResponseDto> blockSale(BlockSaleDto requestDto);
+
+    Mono<SaleResponseDto> addSale(AddSaleRequest requestDto);
 }

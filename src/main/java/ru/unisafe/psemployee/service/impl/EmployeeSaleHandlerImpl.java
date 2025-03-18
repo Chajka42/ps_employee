@@ -1,11 +1,13 @@
 package ru.unisafe.psemployee.service.impl;
 
+import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.dto.TableSaleInfo;
+import ru.unisafe.psemployee.dto.request.AddSaleRequest;
 import ru.unisafe.psemployee.dto.request.BlockSaleDto;
 import ru.unisafe.psemployee.dto.request.SaleRequestDto;
 import ru.unisafe.psemployee.dto.response.BlockSaleResponseDto;
@@ -19,7 +21,14 @@ import ru.unisafe.psemployee.repository.StationRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.r2dbc.PartnerRepository;
 import ru.unisafe.psemployee.service.EmployeeSaleHandler;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,15 +114,6 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
                 });
     }
 
-    @Override
-    public Mono<BlockSaleResponseDto> blockSale(BlockSaleDto blockSaleDto) {
-        log.info("Block sale. partnerId: {}, id: {}", blockSaleDto.getPartnerId(), blockSaleDto.getId());
-        TableSaleInfo tableInfo = getTableAndColumnName(PartnerEnum.fromId(blockSaleDto.getPartnerId()));
-        return salesRepository.blockSale(blockSaleDto.getId(), true, tableInfo);
-    }
-
-
-
     private String mapSaleType(Integer type) {
         if (type == null) {
             return "неизвестно";
@@ -125,6 +125,13 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
             case 4 -> "гарантия";
             default -> "продажа";
         };
+    }
+
+    @Override
+    public Mono<BlockSaleResponseDto> blockSale(BlockSaleDto blockSaleDto) {
+        log.info("Block sale. partnerId: {}, id: {}", blockSaleDto.getPartnerId(), blockSaleDto.getId());
+        TableSaleInfo tableInfo = getTableAndColumnName(PartnerEnum.fromId(blockSaleDto.getPartnerId()));
+        return salesRepository.blockSale(blockSaleDto.getId(), true, tableInfo);
     }
 
     private TableSaleInfo getTableAndColumnName(PartnerEnum partner) {
@@ -160,4 +167,19 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
 
         return new TableSaleInfo(table_name, column_name);
     }
+
+    @Override
+    public Mono<SaleResponseDto> addSale(AddSaleRequest requestDto) {
+        return createReceiptEmployee(
+                requestDto.getLogin(),
+                requestDto.getCode(),
+                requestDto.getType(),
+                requestDto.getModel(),
+                requestDto.getPartnerId());
+    }
+
+    private Mono<SaleResponseDto> createReceiptEmployee(String login, String code, int type, int model, int partnerId) {
+        return null;
+    }
+
 }
