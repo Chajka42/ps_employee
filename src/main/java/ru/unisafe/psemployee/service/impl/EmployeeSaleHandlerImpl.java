@@ -6,9 +6,11 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.dto.TableSaleInfo;
+import ru.unisafe.psemployee.dto.request.BlockSaleDto;
+import ru.unisafe.psemployee.dto.request.SaleRequestDto;
 import ru.unisafe.psemployee.dto.response.BlockSaleResponseDto;
 import ru.unisafe.psemployee.dto.response.SaleDto;
-import ru.unisafe.psemployee.dto.response.SaleDtoResponse;
+import ru.unisafe.psemployee.dto.response.SaleResponseDto;
 import ru.unisafe.psemployee.enums.PartnerEnum;
 import ru.unisafe.psemployee.model.Partner;
 import ru.unisafe.psemployee.repository.PartnerRepositoryJOOQ;
@@ -20,9 +22,6 @@ import ru.unisafe.psemployee.service.EmployeeSaleHandler;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.field;
 
@@ -38,7 +37,8 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
     private final DSLContext dslContext;
 
     @Override
-    public Mono<SaleDtoResponse> getSaleJson(String login) {
+    public Mono<SaleResponseDto> getSaleJson(SaleRequestDto requestDto) {
+        String login = requestDto.getLogin();
         log.info("Login: {}", login);
         return partnerJooq.getPartnerIdByStation(login)
                 .flatMap(partnerId -> {
@@ -56,11 +56,11 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
                 })
                 .onErrorResume(e -> {
                     log.error("Ошибка при получении данных: ", e);
-                    return Mono.just(new SaleDtoResponse(false, login, null, null, null, List.of(), List.of()));
+                    return Mono.just(new SaleResponseDto(false, login, null, null, null, List.of(), List.of()));
                 });
     }
 
-    private SaleDtoResponse mapToSaleDtoResponse(List<SaleDto> sales, String login, String stationCode, Integer partnerId, String partnerName) {
+    private SaleResponseDto mapToSaleDtoResponse(List<SaleDto> sales, String login, String stationCode, Integer partnerId, String partnerName) {
         List<SaleDto> activeSales = new ArrayList<>();
         List<SaleDto> blockedSales = new ArrayList<>();
 
@@ -72,7 +72,7 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
             }
         });
 
-        return new SaleDtoResponse(true, login, stationCode, partnerId, partnerName, activeSales, blockedSales);
+        return new SaleResponseDto(true, login, stationCode, partnerId, partnerName, activeSales, blockedSales);
     }
 
     private Mono<List<SaleDto>> getSalesFromDatabase(TableSaleInfo tableSaleInfo, String login) {
@@ -106,10 +106,10 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
     }
 
     @Override
-    public Mono<BlockSaleResponseDto> blockSale(Integer partnerId, Integer id) {
-        log.info("Block sale. partnerId: {}, id: {}", partnerId, id);
-        TableSaleInfo tableInfo = getTableAndColumnName(PartnerEnum.fromId(partnerId));
-        return salesRepository.blockSale(id, true, tableInfo);
+    public Mono<BlockSaleResponseDto> blockSale(BlockSaleDto blockSaleDto) {
+        log.info("Block sale. partnerId: {}, id: {}", blockSaleDto.getPartnerId(), blockSaleDto.getId());
+        TableSaleInfo tableInfo = getTableAndColumnName(PartnerEnum.fromId(blockSaleDto.getPartnerId()));
+        return salesRepository.blockSale(blockSaleDto.getId(), true, tableInfo);
     }
 
 

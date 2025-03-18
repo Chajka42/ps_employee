@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SaleDtoResponse {
+public class SaleResponseDto {
     private boolean success;
     private String login;
     private String code;
