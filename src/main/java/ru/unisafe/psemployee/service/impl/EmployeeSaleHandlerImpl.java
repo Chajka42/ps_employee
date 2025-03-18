@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.field;
@@ -109,14 +110,6 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
         log.info("Block sale. partnerId: {}, id: {}", partnerId, id);
         TableSaleInfo tableInfo = getTableAndColumnName(PartnerEnum.fromId(partnerId));
         return salesRepository.blockSale(id, true, tableInfo);
-         //switch (partner_id) {
-        //            case 3 -> sendJsonResponse(ctx, HttpResponseStatus.OK, blockSaleInDB(id, true));//mts
-        //            case 5 -> sendJsonResponse(ctx, HttpResponseStatus.OK, MegafonHandler.blockSaleInDBMegafon(id, true));//megafon
-        //            case 7 -> sendJsonResponse(ctx, HttpResponseStatus.OK, EvrikaSalesService.blockSale(id, true));
-        //            case 23 -> sendJsonResponse(ctx, HttpResponseStatus.OK, SvyazonHandler.blockSale(id, true));
-        //            case 19 -> sendJsonResponse(ctx, HttpResponseStatus.OK, MVideoHandler.blockSaleInDBMVideoSales(id, true)); //mvideo
-        //            default -> sendJsonResponse(ctx, HttpResponseStatus.OK, OtherSalesHandler.blockSaleInDBOtherSales(id, true));//other partners
-        //        }
     }
 
 
@@ -155,7 +148,7 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
                 table_name = "mvideo_sales";
                 column_name = "is_blocked";
             }
-            case SVYAZON -> {
+            case SVYAZ_ON -> {
                 table_name = "svyazon_sales";
                 column_name = "is_blocked";
             }

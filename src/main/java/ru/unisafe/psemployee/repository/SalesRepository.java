@@ -26,12 +26,13 @@ public class SalesRepository {
 
         return Mono.from(
                         dsl.update(table(tableInfo.tableName()))
-                                .set(field("is_blocked"), isBlock)
+                                .set(field(tableInfo.columnName()), isBlock)
                                 .set(field("was_loaded"), true)
                                 .where(field("id").eq(id))
                 )
                 .flatMap(updatedRows -> {
                     if (updatedRows == 0) {
+                        log.warn("Продажа не была найдена. Table: {}", tableInfo.tableName());
                         return Mono.just(new BlockSaleResponseDto(false, List.of(new MessageDto("Продажа не найдена."))));
                     }
 
