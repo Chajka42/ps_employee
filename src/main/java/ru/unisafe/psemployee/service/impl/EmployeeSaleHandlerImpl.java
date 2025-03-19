@@ -23,6 +23,7 @@ import ru.unisafe.psemployee.repository.StationRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.r2dbc.PartnerRepository;
 import ru.unisafe.psemployee.service.DateTimeFormatterService;
 import ru.unisafe.psemployee.service.EmployeeSaleHandler;
+import ru.unisafe.psemployee.service.FcmHandler;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -44,6 +45,7 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
     private final StationRepositoryJOOQ stationJooq;
     private final DSLContext dslContext;
     private final DateTimeFormatterService formatterService;
+    private final FcmHandler fcmHandler;
 
 
     @Override
@@ -197,16 +199,11 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
                 requestDto.getType(),
                 model);
 
-        //TODO надо апдейтить FCM
-        //        try {
-        //            FcmHandler.autoUpdateSaleList(stationCode, partner_id);
-        //        } catch (Exception e) {
-        //            System.out.println("FCM createReceipt ERROR");
-        //        }
         return salesRepository.addSale(tableInfo, sale)
-                .map(result -> {
+                .flatMap(result -> {
                     boolean success = result > 0;
-                    return new BaseResponse(success, success ? "Продажа успешно добавлена" : "Ошибка при добавлении продажи");
+                    return fcmHandler.autoUpdateSaleList(requestDto.getCode(), requestDto.getPartnerId())
+                            .thenReturn(new BaseResponse(success, success ? "Продажа успешно добавлена" : "Ошибка при добавлении продажи"));
                 })
                 .onErrorResume(e -> {
                     log.error("Ошибка при добавлении продажи", e);

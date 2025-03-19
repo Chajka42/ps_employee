@@ -27,4 +27,15 @@ public class FirebaseRepository {
                 .where(field("id").eq(id))).subscribe();
     }
 
+    public Mono<String> findFcmTokenByStationCodeAndPartnerId(String stationCode, int partnerId) {
+        return Mono.from(
+                        dsl.select(field("fcm_token"))
+                                .from(table("tts"))
+                                .where(field("station_code").eq(stationCode))
+                                .and(field("partner_id").eq(partnerId))
+                )
+                .map(record -> record.get("fcm_token", String.class))
+                .defaultIfEmpty("?");
+    }
+
 }
