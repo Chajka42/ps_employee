@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.dto.request.AddSaleRequest;
 import ru.unisafe.psemployee.dto.request.BlockSaleDto;
 import ru.unisafe.psemployee.dto.request.SaleRequestDto;
+import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.BlockSaleResponseDto;
 import ru.unisafe.psemployee.dto.response.SaleResponseDto;
 import ru.unisafe.psemployee.service.EmployeeSaleHandler;
@@ -30,7 +31,7 @@ public class EmployeeSaleController {
     }
 
     @PostMapping("/addSale")
-    public Mono<SaleResponseDto> addSale(@RequestBody AddSaleRequest requestDto) {
+    public Mono<BaseResponse> addSale(@RequestBody AddSaleRequest requestDto) {
         return employeeSaleHandler.addSale(requestDto);
     }
 }

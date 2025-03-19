@@ -1,15 +1,17 @@
 package ru.unisafe.psemployee.service.impl;
 
-import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.unisafe.psemployee.dto.SaleToSave;
 import ru.unisafe.psemployee.dto.TableSaleInfo;
 import ru.unisafe.psemployee.dto.request.AddSaleRequest;
 import ru.unisafe.psemployee.dto.request.BlockSaleDto;
 import ru.unisafe.psemployee.dto.request.SaleRequestDto;
+import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.BlockSaleResponseDto;
 import ru.unisafe.psemployee.dto.response.SaleDto;
 import ru.unisafe.psemployee.dto.response.SaleResponseDto;
@@ -19,15 +21,12 @@ import ru.unisafe.psemployee.repository.PartnerRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.SalesRepository;
 import ru.unisafe.psemployee.repository.StationRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.r2dbc.PartnerRepository;
+import ru.unisafe.psemployee.service.DateTimeFormatterService;
 import ru.unisafe.psemployee.service.EmployeeSaleHandler;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +43,8 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
     private final SalesRepository salesRepository;
     private final StationRepositoryJOOQ stationJooq;
     private final DSLContext dslContext;
+    private final DateTimeFormatterService formatterService;
+
 
     @Override
     public Mono<SaleResponseDto> getSaleJson(SaleRequestDto requestDto) {
@@ -58,8 +59,10 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
                             .flatMap(partnerName -> {
                                 TableSaleInfo tableSaleInfo = getTableAndColumnName(partnerEnum);
                                 return stationJooq.getStationCodeByLogin(login)
-                                        .flatMap(stationCode -> getSalesFromDatabase(tableSaleInfo, login)
-                                                .map(sales -> mapToSaleDtoResponse(sales, login, stationCode, partnerId, partnerName))
+                                        .flatMap(stationCode ->
+                                                getSalesFromDatabase(tableSaleInfo, login)
+                                                        .collectList()
+                                                        .map(sales -> mapToSaleDtoResponse(sales, login, stationCode, partnerId, partnerName))
                                         );
                             });
                 })
@@ -73,44 +76,42 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
         List<SaleDto> activeSales = new ArrayList<>();
         List<SaleDto> blockedSales = new ArrayList<>();
 
-        sales.forEach(sale -> {
+        for (SaleDto sale : sales) {
             if ("active".equals(sale.getStatus())) {
                 activeSales.add(sale);
             } else {
                 blockedSales.add(sale);
             }
-        });
+        }
 
         return new SaleResponseDto(true, login, stationCode, partnerId, partnerName, activeSales, blockedSales);
     }
 
-    private Mono<List<SaleDto>> getSalesFromDatabase(TableSaleInfo tableSaleInfo, String login) {
-        return Mono.fromCallable(() -> {
-                    var result = dslContext.select(
-                                    field("id"),
-                                    field("date"),
-                                    field("type"),
-                                    field("model"),
-                                    field("was_loaded"),
-                                    field(tableSaleInfo.columnName()).as("status")
-                            )
-                            .from(tableSaleInfo.tableName())
-                            .where(field("stationLogin").eq(login))
-                            .and(field("date").ge(LocalDate.now().minusDays(1)))
-                            .fetch();
-
-                    return result.stream().map(sale -> new SaleDto(
-                            sale.get("id", Integer.class),
-                            sale.get("was_loaded", Boolean.class),
-                            sale.get("model", Integer.class),
-                            mapSaleType(sale.get("type", Integer.class)),
-                            sale.get("date", LocalDate.class).toString(),
-                            sale.get("status", Boolean.class) ? "blocked" : "active"
-                    )).toList();
-                })
+    private Flux<SaleDto> getSalesFromDatabase(TableSaleInfo tableSaleInfo, String login) {
+        return Flux.from(
+                        dslContext.select(
+                                        field("id"),
+                                        field("date"),
+                                        field("type"),
+                                        field("model"),
+                                        field("was_loaded"),
+                                        field(tableSaleInfo.columnName()).as("status")
+                                )
+                                .from(tableSaleInfo.tableName())
+                                .where(field("stationLogin").eq(login))
+                                .and(field("date").ge(LocalDate.now().minusDays(1)))
+                )
+                .map(sale -> new SaleDto(
+                        sale.get("id", Integer.class),
+                        sale.get("was_loaded", Boolean.class),
+                        sale.get("model", Integer.class),
+                        mapSaleType(sale.get("type", Integer.class)),
+                        formatterService.convertToLocalDateTime(sale.get("date")),
+                        Boolean.TRUE.equals(sale.get("status", Boolean.class)) ? "blocked" : "active"
+                ))
                 .onErrorResume(e -> {
                     log.error("Ошибка при запросе продаж: ", e);
-                    return Mono.just(List.of());
+                    return Flux.empty();
                 });
     }
 
@@ -169,17 +170,48 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
     }
 
     @Override
-    public Mono<SaleResponseDto> addSale(AddSaleRequest requestDto) {
-        return createReceiptEmployee(
-                requestDto.getLogin(),
-                requestDto.getCode(),
-                requestDto.getType(),
-                requestDto.getModel(),
-                requestDto.getPartnerId());
+    public Mono<BaseResponse> addSale(AddSaleRequest requestDto) {
+        return createReceiptEmployee(requestDto);
     }
 
-    private Mono<SaleResponseDto> createReceiptEmployee(String login, String code, int type, int model, int partnerId) {
-        return null;
+    private Mono<BaseResponse> createReceiptEmployee(AddSaleRequest requestDto) {
+
+        int model = requestDto.getModel();
+        TableSaleInfo tableInfo = getTableAndColumnName(PartnerEnum.fromId(requestDto.getPartnerId()));
+
+        if (requestDto.getType() == 3) {
+            model = 2810;
+        }
+
+        String article = "0515-1324";
+        String receipt = "EMP:RECEIPT:MASTER:" + System.currentTimeMillis();
+
+        SaleToSave sale = new SaleToSave(
+                requestDto.getCode(),
+                requestDto.getLogin(),
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                article,
+                receipt,
+                0,
+                requestDto.getType(),
+                model);
+
+        //TODO надо апдейтить FCM
+        //        try {
+        //            FcmHandler.autoUpdateSaleList(stationCode, partner_id);
+        //        } catch (Exception e) {
+        //            System.out.println("FCM createReceipt ERROR");
+        //        }
+        return salesRepository.addSale(tableInfo, sale)
+                .map(result -> {
+                    boolean success = result > 0;
+                    return new BaseResponse(success, success ? "Продажа успешно добавлена" : "Ошибка при добавлении продажи");
+                })
+                .onErrorResume(e -> {
+                    log.error("Ошибка при добавлении продажи", e);
+                    return Mono.just(new BaseResponse(false, "Ошибка при добавлении продажи"));
+                });
     }
 
 }
