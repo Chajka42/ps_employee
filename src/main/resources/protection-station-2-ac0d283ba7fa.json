@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "protection-station-2",
+  "private_key_id": "ac0d283ba7fa455352a1ab04dd7655ad07f51d83",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDgC3X9X7+z4Xg8\nJo2d+kX+iWYTxfdECEVtsQVPYTJj7+yQoV2+U/Lj9LaRaEnNMbBWPfkZPVSifm7J\nXFnxp500hLfpNJh4UJKa7hzetVAJSpqrXoWy0BfT9eRx6frrWGiVOzaa4gSOR6lT\n4JADrHR0WrIefvVvzhkvbSAw7KUoWJSujr2Hf6LN1ZCNwei4cgeXrsCvroQI47Sm\nuTy0gBeZ11AIlU4JGjvwTIuQRbbySteqcjfmlzLYssYVZyNZJ41U6Wg0xPnWfkLg\nBLyIxZ92dH1nKs52qBGCDNPvog5TA5fOhnchV8CzAQi+TXm0sKXy6M3lwWkwAsMl\nlQXpkGT7AgMBAAECggEAWd+PFbQ+kNh95Fcs0PXv9QLF7WGo5mQRAccUk7qwPZGl\nioEIu0wur43fXKYCkOsBSx8yGRNWq5ZfN6wxsnQj5kjlA4ojLYRYwwiIkTgXYprI\nP707kbbTECZf3OhYzOaakV5+8ZN/81lAzhJTgv2/e1tUf1I7f32j8bfrRWTwfaWG\n1Yy42LYfDFDphPUZA2OZOfYHfu1rk5lckhXQSl0EuzEeS6BLUE2vLK+Q4e7L3LqL\nuryFmh9CvRYYclP3b8RpJqfLIhDRdsi60fzNDS4KhjriHz/ohDfi2jdVG2eT51gh\nmEDGPQeddh5N7ZT41ms9OGTBCC/WiMSSKyT1x4uG/QKBgQD0PjDREAlUZMvHE6nm\ngpqVlnRFoD/UHnBXJoWBhJZxgcUaiNmJSWvEXgmo+8+H3GtgoCCCFZn5Z2ZHMmHv\nKQ0X0XGF2n1XJH+qlahZvkuDk+6CtAsagyOP+2mAHeKmV8JNWSRe9zhoZt4v+lzM\nIXZ+0G2vGlfVYyQEwJLfWmlAfQKBgQDq1F4xR2lgfm6yIcp6JSolkCRHc2QWbfgQ\ngU22cXMP1D/TU19UMbwTZU4BQPf4aag/ZC0uQsuaLvtMGvRmGemdijKWdAvcNc6w\naeA4Qbgs2uZNLU2FbtFSQ0uBK6UDkRgP2Sg/XF2c5vzdQW5kk8lNDVcwVTKZ0TFP\nf8zuCBjs1wKBgAECjNMgfNljfVA6bZZtbdQ2hg6PphPreE1z9FNfx/t6LOV6MWQW\n8KIkPWf8epQ2Ph9tKhU/n55fZhXfSHZjthEmJZEHIUON/BUpf0O3vLozj2Xs9qrK\nZgg/YuVLulczv7LwLm1SGmKcIkkSgPW7IbFOjVWPB1Pzj/+RCEpyJkNFAoGBAIIQ\nrDcpMYGDpbY+JxKuQQDbLGzyya3urOYfaDaz8aID0nIvDG7quRwZETJ6lJ3fj5PE\n3Y1w66pzeTa2+0UN9yoN4GUa03LdzqRBkDI4nFUjzUlT3UsZjRC+OzTJQrWOCMDG\na5dkhmkgO1AlLIrCnE10JSWdGtC9YE2DILN6gquzAoGBANXiUpA1ZzyJKK7kPSm2\nLS4lRDsutu/zXKiBgtoaRq1JaUSRi5k+VRGidcYxeEHOdomptXXWL/KwQNCdpnl7\nNw/rCY+2xGmLm8aHViio/yeFzcXzv5mDYQQ/sPtwek5Jg8AqQLJ1K3POwKyxVO/N\n1vda7nxr14cuEz9S9kdjEYYk\n-----END PRIVATE KEY-----\n",
+  "client_email": "new-employee@protection-station-2.iam.gserviceaccount.com",
+  "client_id": "116897815391556861408",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/new-employee%40protection-station-2.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

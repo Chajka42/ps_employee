@@ -2,6 +2,7 @@ package ru.unisafe.psemployee.service.impl;
 
 import com.google.firebase.messaging.AndroidConfig;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +32,17 @@ public class NotificationServiceImpl implements NotificationService {
                         .build())
                 .build();
 
-        //TODO пишет "error_description":"Invalid JWT Signature." iss: firebase-adminsdk-fpvj7@protection-station-2.iam.gserviceaccount.com
+        //TODO пишет ERROR: Requested entity was not found.
         return Mono.fromCallable(() -> firebaseMessaging.send(message))
-                .onErrorResume(e -> Mono.just("ERROR: " + e.getMessage()));
+                .doOnSuccess(response -> log.info("Notification sent successfully: {}", response))
+                .doOnError(e -> log.error("Error sending notification", e))
+                .onErrorResume(e -> Mono.just("ERROR: " + extractErrorDetails(e)));
+    }
+
+    private String extractErrorDetails(Throwable e) {
+        if (e instanceof FirebaseMessagingException fme) {
+            return fme.getMessagingErrorCode().name() + ": " + fme.getMessage();
+        }
+        return e.getClass().getSimpleName() + ": " + e.getMessage();
     }
 }

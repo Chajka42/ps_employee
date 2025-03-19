@@ -15,4 +15,4 @@ ps:
     version: 102
 
 firebase:
-  serviceAccount: classpath:protection-station-2-firebase-adminsdk-fpvj7-26742d7b86.json
+  serviceAccount: classpath:protection-station-2-ac0d283ba7fa.json
