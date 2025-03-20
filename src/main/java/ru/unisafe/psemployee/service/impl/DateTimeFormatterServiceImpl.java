@@ -12,17 +12,26 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class DateTimeFormatterServiceImpl implements DateTimeFormatterService {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter RUSSIAN_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
     @Override
     public String convertToLocalDateTime(Object date) {
         if (date instanceof ZonedDateTime zonedDateTime) {
-            return zonedDateTime.toLocalDateTime().format(FORMATTER);
+            return zonedDateTime.toLocalDateTime().format(RUSSIAN_FORMATTER);
         } else if (date instanceof LocalDateTime localDateTime) {
-            return localDateTime.format(FORMATTER);
+            return localDateTime.format(RUSSIAN_FORMATTER);
         } else {
             log.warn("Неизвестный формат даты: {}", date);
             return "unknown";
         }
+    }
+
+    @Override
+    public String formatToRussianDateTime(LocalDateTime dateTime) {
+        if (dateTime == null) {
+            log.warn("Передана null-значение в formatToRussianDateTime");
+            return "unknown";
+        }
+        return dateTime.format(RUSSIAN_FORMATTER);
     }
 }

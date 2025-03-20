@@ -1,7 +1,6 @@
 package ru.unisafe.psemployee.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -10,39 +9,39 @@ import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.BlockSaleResponseDto;
 import ru.unisafe.psemployee.dto.response.MegafonTariffResponse;
 import ru.unisafe.psemployee.dto.response.SaleResponseDto;
-import ru.unisafe.psemployee.service.EmployeeSaleHandler;
+import ru.unisafe.psemployee.service.EmployeeSaleService;
 
-@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/employee/api")
 @RestController
 public class EmployeeSaleController {
 
-    private final EmployeeSaleHandler employeeSaleHandler;
+    private final EmployeeSaleService employeeSaleService;
 
     @PostMapping("/getSaleJson")
     public Mono<SaleResponseDto> getSaleJson(@Validated @RequestBody SaleRequestDto requestDto) {
-        return employeeSaleHandler.getSaleJson(requestDto);
+        return employeeSaleService.getSaleJson(requestDto);
     }
 
     @PostMapping("/blockSale")
     public Mono<BlockSaleResponseDto> blockSale(@Validated @RequestBody BlockSaleDto blockSaleDto) {
-        return employeeSaleHandler.blockSale(blockSaleDto);
+        return employeeSaleService.blockSale(blockSaleDto);
     }
 
+    //TODO Не работает {"error":"invalid_grant","error_description":"Invalid JWT Signature."} при попытке обращения к Firebase
     @PostMapping("/addSale")
     public Mono<BaseResponse> addSale(@Validated @RequestBody AddSaleRequest requestDto) {
-        return employeeSaleHandler.addSale(requestDto);
+        return employeeSaleService.addSale(requestDto);
     }
 
     @PostMapping("/searchMegafonTariffSale")
     public Mono<MegafonTariffResponse> searchMegafonTariffSale(@Validated @RequestBody MegafonTariffRequest megafonTariffRequest) {
-        return employeeSaleHandler.searchMegafonTariffSale(megafonTariffRequest);
+        return employeeSaleService.searchMegafonTariffSale(megafonTariffRequest);
     }
 
     @PostMapping("/updateMegafonTariffSalePhone")
     public Mono<BaseResponse> updatePhoneInMegafonTariffSale(@Validated @RequestBody MegafonTariffUpdatePhoneRequest megafonTariffUpdatePhoneRequest) {
-        return employeeSaleHandler.updatePhoneInMegafonTariffSale(megafonTariffUpdatePhoneRequest);
+        return employeeSaleService.updatePhoneInMegafonTariffSale(megafonTariffUpdatePhoneRequest);
     }
 
 }

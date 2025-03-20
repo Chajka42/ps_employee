@@ -17,7 +17,7 @@ import ru.unisafe.psemployee.repository.SalesRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.StationRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.r2dbc.PartnerRepository;
 import ru.unisafe.psemployee.service.DateTimeFormatterService;
-import ru.unisafe.psemployee.service.EmployeeSaleHandler;
+import ru.unisafe.psemployee.service.EmployeeSaleService;
 import ru.unisafe.psemployee.service.FcmHandler;
 
 import java.time.LocalDate;
@@ -30,7 +30,7 @@ import static org.jooq.impl.DSL.field;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
+public class EmployeeSaleServiceImpl implements EmployeeSaleService {
 
     private final PartnerRepositoryJOOQ partnerJooq;
     private final PartnerRepository partnerRepository;

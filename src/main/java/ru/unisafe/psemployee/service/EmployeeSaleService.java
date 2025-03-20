@@ -7,7 +7,7 @@ import ru.unisafe.psemployee.dto.response.BlockSaleResponseDto;
 import ru.unisafe.psemployee.dto.response.MegafonTariffResponse;
 import ru.unisafe.psemployee.dto.response.SaleResponseDto;
 
-public interface EmployeeSaleHandler {
+public interface EmployeeSaleService {
     Mono<SaleResponseDto> getSaleJson(SaleRequestDto requestDto);
 
     Mono<BlockSaleResponseDto> blockSale(BlockSaleDto requestDto);
