@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+import ru.unisafe.psemployee.dto.request.ChangeCouponsRequest;
 import ru.unisafe.psemployee.dto.request.RequestWithStationLogin;
+import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
 import ru.unisafe.psemployee.service.EmployeeStationService;
 
@@ -20,5 +22,10 @@ public class EmployeeStationController {
     @PostMapping("/getCouponsInfo")
     public Mono<CouponsInfoResponse> getCouponsInfo(@RequestBody RequestWithStationLogin request) {
         return employeeStationService.getCouponsInfo(request);
+    }
+
+    @PostMapping("/changeCoupons")
+    public Mono<BaseResponse> changeCoupons(@RequestBody ChangeCouponsRequest changeCouponsRequest) {
+        return employeeStationService.changeCoupons(changeCouponsRequest);
     }
 }

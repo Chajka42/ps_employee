@@ -1,10 +1,13 @@
 package ru.unisafe.psemployee.repository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.unisafe.psemployee.dto.request.ChangeCouponsRequest;
+import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
 
 import java.time.LocalDateTime;
@@ -12,6 +15,7 @@ import java.time.LocalDateTime;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
 
+@Slf4j
 @RequiredArgsConstructor
 @Repository
 public class AchievementsRepositoryJOOQ {
@@ -52,65 +56,33 @@ public class AchievementsRepositoryJOOQ {
                         .newTotal(record.get("new_total", Integer.class))
                         .build());
     }
+
+    public Mono<BaseResponse> changeCoupons(ChangeCouponsRequest request) {
+        return Mono.from(dsl.select(field("coupons", Integer.class))
+                        .from(table("achievements"))
+                        .where(field("login").eq(request.getLogin())))
+                .flatMap(record -> {
+                    Integer currentCoupons = record.get("coupons", Integer.class);
+                    int newCoupons = request.isPlus()
+                            ? currentCoupons + request.getValue()
+                            : currentCoupons - request.getValue();
+
+                    return Mono.from(dsl.update(table("achievements"))
+                                    .set(field("coupons"), newCoupons)
+                                    .where(field("login").eq(request.getLogin())))
+                            .then(saveAchievementsLog(request.getLogin(), request.getValue(), newCoupons,
+                                    request.isPlus() ? "Начисление бонуса" : "Списание купонов"))
+                            .thenReturn(new BaseResponse(true, "Купоны успешно обновлены"));
+                })
+                .defaultIfEmpty(new BaseResponse(false, "Станция не найдена"))
+                .doOnError(error -> log.error("Ошибка при изменении купонов: {}", error.getMessage()));
+    }
+
+    public Mono<Void> saveAchievementsLog(String login, int value, int total, String description) {
+        return Mono.from(dsl.insertInto(table("achievements_logs"))
+                        .columns(field("login"), field("coupons"), field("description"), field("new_total"))
+                        .values(login, value, description, total))
+                .then();
+    }
 }
 
-//public static void getCouponsInfo(Map<String, List<String>> queryParams, ChannelHandlerContext ctx) {
-//        String login = queryParams.get("login").get(0);
-//        DatabaseService dbService = new DatabaseService(Constants.URL_DB, Constants.USER_DB, Constants.PASSWORD_DB);
-//        PreparedStatement statement;
-//        Connection connection;
-//
-//        ObjectNode responseNode = JsonNodeFactory.instance.objectNode();
-//
-//        try {
-//            connection = dbService.getConnection();
-//            statement = connection.prepareStatement("SELECT coupons, coupons_earned_ach, coupons_earned_cuts FROM achievements WHERE login = ?");
-//            statement.setString(1, login);
-//
-//            ResultSet rs = statement.executeQuery();
-//            while (rs.next()) {
-//                responseNode.put("coupons", rs.getInt("coupons"));
-//                responseNode.put("coupons_earned_ach", rs.getInt("coupons_earned_ach"));
-//                responseNode.put("coupons_earned_cuts", rs.getInt("coupons_earned_cuts"));
-//            }
-//            dbService.closeConnection(connection);
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        ArrayNode categoriesArray = getCouponChangeList(login);
-//
-//        responseNode.put("success", true);
-//        responseNode.set("data", categoriesArray);
-//        sendJsonResponse(ctx, HttpResponseStatus.OK, responseNode.toString());
-//    }
-//
-//    public static ArrayNode getCouponChangeList(String login) {
-//        ArrayNode categoriesArray = JsonNodeFactory.instance.arrayNode();
-//        DatabaseService dbService = new DatabaseService(Constants.URL_DB, Constants.USER_DB, Constants.PASSWORD_DB);
-//        PreparedStatement statement;
-//        Connection connection;
-//
-//        try {
-//            connection = dbService.getConnection();
-//            statement = connection.prepareStatement("SELECT id, coupons, description, created, new_total FROM achievements_logs WHERE login = ? ORDER BY id desc LIMIT 100 ");
-//            statement.setString(1, login);
-//
-//            ResultSet rs = statement.executeQuery();
-//            while (rs.next()) {
-//                ObjectNode categoryNode = JsonNodeFactory.instance.objectNode();
-//                categoryNode.put("id", rs.getInt("id"));
-//                categoryNode.put("coupons", rs.getInt("coupons"));
-//                categoryNode.put("description", rs.getString("description"));
-//                categoryNode.put("created", rs.getString("created"));
-//                categoryNode.put("new_total", rs.getInt("new_total"));
-//                categoriesArray.add(categoryNode);
-//            }
-//
-//            dbService.closeConnection(connection);
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        return categoriesArray;
-//    }
