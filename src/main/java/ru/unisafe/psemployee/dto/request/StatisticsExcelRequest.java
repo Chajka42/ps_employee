@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class StatisticsExcelRequest {
     @NotBlank(message = "Login cannot be empty")
-    @Schema(description = "User login", example = "station2423")
+    @Schema(description = "Station login", example = "station2423")
     private String login;
     @NotBlank(message = "Request period cannot be empty")
     @Schema(description = "Request period in format: month_0, month_1, month_2", example = "month_0")
