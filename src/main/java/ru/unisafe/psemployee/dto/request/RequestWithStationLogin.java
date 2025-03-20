@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SaleRequestDto {
+public class RequestWithStationLogin {
     @NotBlank(message = "Login cannot be empty")
     private String login;
 }

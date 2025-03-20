@@ -8,8 +8,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.dto.StatisticRecord;
+import ru.unisafe.psemployee.dto.request.RequestWithStationLogin;
 import ru.unisafe.psemployee.dto.request.StatisticsExcelRequest;
 import ru.unisafe.psemployee.repository.StatisticsRepositoryJOOQ;
 import ru.unisafe.psemployee.service.DateTimeFormatterService;
@@ -46,6 +48,11 @@ public class EmployeeStatisticsServiceImpl implements EmployeeStatisticsService 
                         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ps_stat_" + login + ".xlsx")
                         .contentType(MediaType.APPLICATION_OCTET_STREAM)
                         .body(bytes));
+    }
+
+    @Override
+    public Flux<StatisticRecord> getStatistic(RequestWithStationLogin request) {
+        return statisticRepository.fetchStatistics(request.getLogin());
     }
 
     private Mono<byte[]> generateExcel(List<StatisticRecord> records) {

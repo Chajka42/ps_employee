@@ -19,7 +19,7 @@ public class EmployeeSaleController {
     private final EmployeeSaleService employeeSaleService;
 
     @PostMapping("/getSaleJson")
-    public Mono<SaleResponseDto> getSaleJson(@Validated @RequestBody SaleRequestDto requestDto) {
+    public Mono<SaleResponseDto> getSaleJson(@Validated @RequestBody RequestWithStationLogin requestDto) {
         return employeeSaleService.getSaleJson(requestDto);
     }
 

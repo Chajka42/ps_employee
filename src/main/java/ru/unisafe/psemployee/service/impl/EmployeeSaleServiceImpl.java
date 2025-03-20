@@ -42,7 +42,7 @@ public class EmployeeSaleServiceImpl implements EmployeeSaleService {
 
 
     @Override
-    public Mono<SaleResponseDto> getSaleJson(SaleRequestDto requestDto) {
+    public Mono<SaleResponseDto> getSaleJson(RequestWithStationLogin requestDto) {
         String login = requestDto.getLogin();
         log.info("Login: {}", login);
         return partnerJooq.getPartnerIdByStation(login)
