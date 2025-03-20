@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import ru.unisafe.psemployee.repository.FirebaseRepository;
+import ru.unisafe.psemployee.repository.FirebaseRepositoryJOOQ;
 import ru.unisafe.psemployee.service.FcmHandler;
 import ru.unisafe.psemployee.service.NotificationService;
 
@@ -15,7 +15,7 @@ import ru.unisafe.psemployee.service.NotificationService;
 public class FcmHandlerImpl implements FcmHandler {
 
     private final NotificationService notificationService;
-    private final FirebaseRepository firebaseRepository;
+    private final FirebaseRepositoryJOOQ firebaseRepository;
 
     @Override
     public Mono<Void> autoUpdateSaleList(String partnerCode, int partnerId) {

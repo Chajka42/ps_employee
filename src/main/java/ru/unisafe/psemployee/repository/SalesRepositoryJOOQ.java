@@ -7,11 +7,11 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.dto.SaleToSave;
 import ru.unisafe.psemployee.dto.TableSaleInfo;
-import ru.unisafe.psemployee.dto.request.AddSaleRequest;
-import ru.unisafe.psemployee.dto.response.BlockSaleResponseDto;
-import ru.unisafe.psemployee.dto.response.MessageDto;
-import ru.unisafe.psemployee.dto.response.SaleResponseDto;
+import ru.unisafe.psemployee.dto.request.MegafonTariffRequest;
+import ru.unisafe.psemployee.dto.request.MegafonTariffUpdatePhoneRequest;
+import ru.unisafe.psemployee.dto.response.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.jooq.impl.DSL.field;
@@ -20,7 +20,7 @@ import static org.jooq.impl.DSL.table;
 @Slf4j
 @RequiredArgsConstructor
 @Repository
-public class SalesRepository {
+public class SalesRepositoryJOOQ {
 
     private final DSLContext dsl;
 
@@ -75,25 +75,38 @@ public class SalesRepository {
                 .defaultIfEmpty(0L);
     }
 
-    //DatabaseService databaseService = new DatabaseService(Constants.URL_DB, Constants.USER_DB, Constants.PASSWORD_DB);
-    //            PreparedStatement statement;
-    //            Connection connection;
-    //            try {
-    //                connection = databaseService.getConnection();
-    //                statement = connection.prepareStatement("INSERT INTO " + table_name + " (stationCode, stationLogin, " + column_name + ", article, date, server_time, who, type, model) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    //                statement.setString(1, stationCode);
-    //                statement.setString(2, login);
-    //                statement.setString(3, receipt);
-    //                statement.setString(4, article);
-    //                statement.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
-    //                statement.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
-    //                statement.setInt(7, 0);
-    //                statement.setInt(8, type);
-    //                statement.setInt(9, model);
-    //                statement.executeUpdate();
-    //                databaseService.closeConnection(connection);
-    //            } catch (SQLException e) {
-    //                throw new RuntimeException(e);
-    //            }
+    public Mono<MegafonTariffResponse> getMegafonTariffSale(MegafonTariffRequest megafonTariffRequest) {
+        return Mono.from(
+                dsl.select(
+                                field("id", Integer.class),
+                                field("receipt", String.class),
+                                field("server_time", LocalDateTime.class),
+                                field("phone", String.class)
+                        )
+                        .from(table("megafon_sales"))
+                        .where(field("receipt").like("%" + megafonTariffRequest.getSaleKey() + "%")
+                                .and(field("article").in("900140490", "900140491", "900139119", "900139120")))
+                        .orderBy(field("id").desc())
+                        .limit(1)
+        ).map(record -> new MegafonTariffResponse(
+                true,
+                record.get("id", Integer.class),
+                record.get("receipt", String.class),
+                record.get("server_time", LocalDateTime.class),
+                record.get("phone", String.class)
+        )).defaultIfEmpty(new MegafonTariffResponse(false, 0, null, null, null));
+    }
+
+    public Mono<BaseResponse> updatePhoneInMegafonTariffSale(MegafonTariffUpdatePhoneRequest request) {
+        return Mono.from(dsl
+                .update(table("megafon_sales"))
+                .set(field("phone", String.class), request.getNewPhone())
+                .where(field("id", Integer.class).eq(request.getId())))
+                .map(updatedRows -> {
+                    boolean success = updatedRows > 0;
+                    String message = success ? "Телефон успешно обновлен" : "Произошла ошибка в процессе обновления телефона";
+                    return new BaseResponse(success, message);
+                });
+    }
 
 }

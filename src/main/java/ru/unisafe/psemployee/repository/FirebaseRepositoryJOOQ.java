@@ -10,11 +10,11 @@ import static org.jooq.impl.DSL.table;
 
 @Slf4j
 @Repository
-public class FirebaseRepository {
+public class FirebaseRepositoryJOOQ {
 
     private final DSLContext dsl;
 
-    public FirebaseRepository(DSLContext dsl) {
+    public FirebaseRepositoryJOOQ(DSLContext dsl) {
         this.dsl = dsl;
     }
 

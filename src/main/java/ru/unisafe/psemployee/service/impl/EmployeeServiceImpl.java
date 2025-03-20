@@ -5,14 +5,14 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.dto.EmployeeDto;
-import ru.unisafe.psemployee.repository.EmployeeRepository;
+import ru.unisafe.psemployee.repository.EmployeeRepositoryJOOQ;
 import ru.unisafe.psemployee.service.EmployeeService;
 
 @RequiredArgsConstructor
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-    private final EmployeeRepository employeeRepository;
+    private final EmployeeRepositoryJOOQ employeeRepository;
 
 
     @Override

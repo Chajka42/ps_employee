@@ -8,17 +8,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.dto.SaleToSave;
 import ru.unisafe.psemployee.dto.TableSaleInfo;
-import ru.unisafe.psemployee.dto.request.AddSaleRequest;
-import ru.unisafe.psemployee.dto.request.BlockSaleDto;
-import ru.unisafe.psemployee.dto.request.SaleRequestDto;
-import ru.unisafe.psemployee.dto.response.BaseResponse;
-import ru.unisafe.psemployee.dto.response.BlockSaleResponseDto;
-import ru.unisafe.psemployee.dto.response.SaleDto;
-import ru.unisafe.psemployee.dto.response.SaleResponseDto;
+import ru.unisafe.psemployee.dto.request.*;
+import ru.unisafe.psemployee.dto.response.*;
 import ru.unisafe.psemployee.enums.PartnerEnum;
 import ru.unisafe.psemployee.model.Partner;
 import ru.unisafe.psemployee.repository.PartnerRepositoryJOOQ;
-import ru.unisafe.psemployee.repository.SalesRepository;
+import ru.unisafe.psemployee.repository.SalesRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.StationRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.r2dbc.PartnerRepository;
 import ru.unisafe.psemployee.service.DateTimeFormatterService;
@@ -27,8 +22,6 @@ import ru.unisafe.psemployee.service.FcmHandler;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +34,7 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
 
     private final PartnerRepositoryJOOQ partnerJooq;
     private final PartnerRepository partnerRepository;
-    private final SalesRepository salesRepository;
+    private final SalesRepositoryJOOQ salesRepository;
     private final StationRepositoryJOOQ stationJooq;
     private final DSLContext dslContext;
     private final DateTimeFormatterService formatterService;
@@ -211,4 +204,13 @@ public class EmployeeSaleHandlerImpl implements EmployeeSaleHandler {
                 });
     }
 
+    @Override
+    public Mono<MegafonTariffResponse> searchMegafonTariffSale(MegafonTariffRequest megafonTariffRequest) {
+        return salesRepository.getMegafonTariffSale(megafonTariffRequest);
+    }
+
+    @Override
+    public Mono<BaseResponse> updatePhoneInMegafonTariffSale(MegafonTariffUpdatePhoneRequest megafonTariffUpdatePhoneRequest) {
+        return salesRepository.updatePhoneInMegafonTariffSale(megafonTariffUpdatePhoneRequest);
+    }
 }

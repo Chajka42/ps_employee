@@ -6,11 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import reactor.test.StepVerifier;
 import ru.unisafe.psemployee.dto.request.FirebaseTokenRequest;
-import ru.unisafe.psemployee.repository.FirebaseRepository;
+import ru.unisafe.psemployee.repository.FirebaseRepositoryJOOQ;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -23,7 +21,7 @@ public class FirebaseTokenServiceTest {
     private FirebaseTokenServiceImpl firebaseTokenService;
 
     @Mock
-    private FirebaseRepository firebaseRepository;
+    private FirebaseRepositoryJOOQ firebaseRepository;
 
     @DisplayName("Передача валидного токена и id")
     @Test

@@ -14,11 +14,11 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
 
 @Repository
-public class EmployeeRepository {
+public class EmployeeRepositoryJOOQ {
 
     private final DSLContext dsl;
 
-    public EmployeeRepository(DSLContext dsl) {
+    public EmployeeRepositoryJOOQ(DSLContext dsl) {
         this.dsl = dsl;
     }
 

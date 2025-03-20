@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CheckTokenResponse;
 import ru.unisafe.psemployee.dto.response.PasswordCheckResponse;
-import ru.unisafe.psemployee.repository.EmployeeRepository;
+import ru.unisafe.psemployee.repository.EmployeeRepositoryJOOQ;
 import ru.unisafe.psemployee.service.EmployeeAuthService;
 import ru.unisafe.psemployee.service.MD5;
 import ru.unisafe.psemployee.service.OpenStreetMapService;
@@ -23,7 +23,7 @@ import java.util.Map;
 @Service
 public class EmployeeAuthServiceImpl implements EmployeeAuthService {
 
-    private final EmployeeRepository employeeRepository;
+    private final EmployeeRepositoryJOOQ employeeRepository;
     private final OpenStreetMapService geoService;
     private final MD5 md5;
 

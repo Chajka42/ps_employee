@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.dto.request.FirebaseTokenRequest;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
-import ru.unisafe.psemployee.repository.FirebaseRepository;
+import ru.unisafe.psemployee.repository.FirebaseRepositoryJOOQ;
 import ru.unisafe.psemployee.service.FirebaseTokenService;
 
 import java.util.Optional;
@@ -16,7 +16,7 @@ import java.util.Optional;
 @Service
 public class FirebaseTokenServiceImpl implements FirebaseTokenService {
 
-    private final FirebaseRepository firebaseRepository;
+    private final FirebaseRepositoryJOOQ firebaseRepository;
 
     @Override
     public Mono<BaseResponse> refreshFirebaseToken(FirebaseTokenRequest request) {
