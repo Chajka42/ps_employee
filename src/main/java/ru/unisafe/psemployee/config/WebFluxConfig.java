@@ -1,4 +1,4 @@
-package ru.unisafe.psemployee;
+package ru.unisafe.psemployee.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
