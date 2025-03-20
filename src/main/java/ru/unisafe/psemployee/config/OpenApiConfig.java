@@ -12,9 +12,9 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info().title("My API")
+                .info(new Info().title("Protection-station Employee")
                         .version("1.0")
-                        .description("This is a sample Spring Boot RESTful service using OpenAPI and Swagger UI"))
+                        .description("Spring boot RESTful API for Employee using OpenAPI and Swagger UI"))
                 .addServersItem(new Server().url("http://localhost:8080"));
     }
 }
