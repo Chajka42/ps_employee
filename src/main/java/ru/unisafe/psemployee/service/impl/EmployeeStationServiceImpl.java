@@ -3,22 +3,24 @@ package ru.unisafe.psemployee.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.unisafe.psemployee.dto.request.ChangeCouponsRequest;
-import ru.unisafe.psemployee.dto.request.ChangeStationStoreRequest;
-import ru.unisafe.psemployee.dto.request.CreateStationRequest;
-import ru.unisafe.psemployee.dto.request.RequestWithStationLogin;
+import ru.unisafe.psemployee.dto.StationFilterDto;
+import ru.unisafe.psemployee.dto.StationRecord;
+import ru.unisafe.psemployee.dto.request.*;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
 import ru.unisafe.psemployee.model.Tts;
 import ru.unisafe.psemployee.repository.AchievementsRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.EmployeeRepositoryJOOQ;
+import ru.unisafe.psemployee.repository.StationRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.StoreRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.r2dbc.TtsRepository;
 import ru.unisafe.psemployee.service.EmployeeStationService;
 import ru.unisafe.psemployee.service.StationUtilsService;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -30,6 +32,7 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
     private final TtsRepository ttsRepository;
     private final EmployeeRepositoryJOOQ employeeRepository;
     private final StationUtilsService stationUtilsService;
+    private final StationRepositoryJOOQ stationRepositoryJOOQ;
 
     @Override
     public Mono<CouponsInfoResponse> getCouponsInfo(RequestWithStationLogin request) {
@@ -106,6 +109,21 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
                             });
                 })
                 .doOnError(error -> log.error("Ошибка при создании станции: {}", error.getMessage(), error));
+    }
+
+    @Override
+    public Flux<StationRecord> findStations(StationFilterDto filter) {
+        return stationRepositoryJOOQ.findStations(filter)
+                .map(record -> new StationRecord(
+                        record.get("login", String.class),
+                        record.get("station_code", String.class),
+                        record.get("status", Integer.class),
+                        record.get("address", String.class),
+                        record.get("is_problem", Boolean.class),
+                        record.get("problem_description", String.class),
+                        record.get("problem_solved_date", ZonedDateTime.class).toLocalDateTime(),
+                        record.get("partner_name", String.class)
+                ));
     }
 
 }

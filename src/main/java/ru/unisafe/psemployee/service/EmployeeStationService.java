@@ -1,10 +1,10 @@
 package ru.unisafe.psemployee.service;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.unisafe.psemployee.dto.request.ChangeCouponsRequest;
-import ru.unisafe.psemployee.dto.request.ChangeStationStoreRequest;
-import ru.unisafe.psemployee.dto.request.CreateStationRequest;
-import ru.unisafe.psemployee.dto.request.RequestWithStationLogin;
+import ru.unisafe.psemployee.dto.StationFilterDto;
+import ru.unisafe.psemployee.dto.StationRecord;
+import ru.unisafe.psemployee.dto.request.*;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
 
@@ -16,4 +16,6 @@ public interface EmployeeStationService {
     Mono<BaseResponse> changeStationStore(ChangeStationStoreRequest request);
 
     Mono<BaseResponse> createStation(CreateStationRequest request);
+
+    Flux<StationRecord> findStations(StationFilterDto filter);
 }
