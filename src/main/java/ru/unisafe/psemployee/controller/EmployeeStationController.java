@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.dto.request.ChangeCouponsRequest;
 import ru.unisafe.psemployee.dto.request.ChangeStationStoreRequest;
+import ru.unisafe.psemployee.dto.request.CreateStationRequest;
 import ru.unisafe.psemployee.dto.request.RequestWithStationLogin;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
@@ -34,5 +35,10 @@ public class EmployeeStationController {
     @PostMapping("/changeStationStore")
     public Mono<BaseResponse> changeStationStore(@Validated @RequestBody ChangeStationStoreRequest request) {
         return employeeStationService.changeStationStore(request);
+    }
+
+    @PostMapping("/createNewStation")
+    public Mono<BaseResponse> createNewStation(@Validated @RequestBody CreateStationRequest request) {
+        return employeeStationService.createStation(request);
     }
 }

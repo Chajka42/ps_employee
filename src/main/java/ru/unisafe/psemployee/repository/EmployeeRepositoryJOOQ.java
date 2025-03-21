@@ -92,6 +92,15 @@ public class EmployeeRepositoryJOOQ {
                 .map(record -> record.get(field("id", Integer.class)));
     }
 
+    public Mono<Integer> getEmployeeVisorId(String token) {
+        return Mono.from(dsl
+                        .select(field("visor_id"))
+                        .from("employee")
+                        .where(field("token").eq(token)))
+                .map(record -> record.get(field("visor_id", Integer.class)))
+                .defaultIfEmpty(0);
+    }
+
     public Mono<Void> updateEmployeeLocation(int id, double lat, double lon, String address) {
         return Mono.from(dsl
                         .update(table("employee"))
@@ -103,13 +112,13 @@ public class EmployeeRepositoryJOOQ {
     }
 
     public Mono<String> getEmployeeName(String token) {
-        return Mono.fromCallable(() -> dsl
-                .select(field("name", String.class))
-                .from("employee")
-                .where(field("token", String.class).eq(token))
-                .fetchOneInto(String.class)
-        );
+        return Mono.from(dsl.select(field("name"))
+                        .from("employee")
+                        .where(field("token").eq(token)))
+                .map(record -> record.get("name", String.class))
+                .defaultIfEmpty("Неизвестный сотрудник");
     }
+
 
     public Mono<String> getTokenByRelictToken(String relictToken) {
         Field<String> token = field("token", String.class);

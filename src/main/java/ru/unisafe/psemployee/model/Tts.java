@@ -1,35 +1,49 @@
 package ru.unisafe.psemployee.model;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @Table("tts")
 public class Tts {
 
     @Id
     private Integer id;
+    @Column("station_key")
     private String stationKey;
     private String token;
+    @Column("station_code")
     private String stationCode;
     private String login;
     private String pass;
+    @Column("partner_id")
     private Integer partnerId;
+    @Column("plotter_id")
     private Integer plotterId;
+    @Column("visor_id")
     private Integer visorId;
+    @Column("region_unisafe_id")
     private Integer regionUnisafeId;
+    @Column("region_partner_id")
     private Integer regionPartnerId;
     private String address;
-    private String iOInfo;
+    @Column("i_o_info")
+    private String ioInfo;
     private String comment;
     private Boolean status;
+    @Column("n_learning")
     private Integer nLearning;
+    @Column("n_debugging")
     private Integer nDebugging;
+    @Column("time_open")
     private LocalDateTime timeOpen;
     private LocalDateTime timeClose;
     private String versionName;
@@ -64,5 +78,4 @@ public class Tts {
     private Integer rrCuts;
     private String plotterName;
     private Boolean isCleaning;
-
 }
