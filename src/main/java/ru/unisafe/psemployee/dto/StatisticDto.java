@@ -1,4 +1,4 @@
-package ru.unisafe.psemployee.dto.response;
+package ru.unisafe.psemployee.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

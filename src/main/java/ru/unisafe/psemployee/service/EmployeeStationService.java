@@ -9,7 +9,6 @@ import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
 import ru.unisafe.psemployee.dto.response.StationInfoMenuResponse;
 import ru.unisafe.psemployee.dto.response.StationInfoResponse;
-import ru.unisafe.psemployee.model.StationInfoExtended;
 
 public interface EmployeeStationService {
     Mono<CouponsInfoResponse> getCouponsInfo(RequestWithStationLogin request);

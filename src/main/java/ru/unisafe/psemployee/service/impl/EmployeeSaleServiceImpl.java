@@ -6,6 +6,7 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.unisafe.psemployee.dto.SaleDto;
 import ru.unisafe.psemployee.dto.SaleToSave;
 import ru.unisafe.psemployee.dto.TableSaleInfo;
 import ru.unisafe.psemployee.dto.request.*;
@@ -42,7 +43,7 @@ public class EmployeeSaleServiceImpl implements EmployeeSaleService {
 
 
     @Override
-    public Mono<SaleResponseDto> getSaleJson(RequestWithStationLogin requestDto) {
+    public Mono<SaleResponse> getSaleJson(RequestWithStationLogin requestDto) {
         String login = requestDto.getLogin();
         log.info("Login: {}", login);
         return partnerJooq.getPartnerIdByStation(login)
@@ -63,11 +64,11 @@ public class EmployeeSaleServiceImpl implements EmployeeSaleService {
                 })
                 .onErrorResume(e -> {
                     log.error("Ошибка при получении данных: ", e);
-                    return Mono.just(new SaleResponseDto(false, login, null, null, null, List.of(), List.of()));
+                    return Mono.just(new SaleResponse(false, login, null, null, null, List.of(), List.of()));
                 });
     }
 
-    private SaleResponseDto mapToSaleDtoResponse(List<SaleDto> sales, String login, String stationCode, Integer partnerId, String partnerName) {
+    private SaleResponse mapToSaleDtoResponse(List<SaleDto> sales, String login, String stationCode, Integer partnerId, String partnerName) {
         List<SaleDto> activeSales = new ArrayList<>();
         List<SaleDto> blockedSales = new ArrayList<>();
 
@@ -79,7 +80,7 @@ public class EmployeeSaleServiceImpl implements EmployeeSaleService {
             }
         }
 
-        return new SaleResponseDto(true, login, stationCode, partnerId, partnerName, activeSales, blockedSales);
+        return new SaleResponse(true, login, stationCode, partnerId, partnerName, activeSales, blockedSales);
     }
 
     private Flux<SaleDto> getSalesFromDatabase(TableSaleInfo tableSaleInfo, String login) {

@@ -5,10 +5,10 @@ import ru.unisafe.psemployee.dto.request.*;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.BlockSaleResponseDto;
 import ru.unisafe.psemployee.dto.response.MegafonTariffResponse;
-import ru.unisafe.psemployee.dto.response.SaleResponseDto;
+import ru.unisafe.psemployee.dto.response.SaleResponse;
 
 public interface EmployeeSaleService {
-    Mono<SaleResponseDto> getSaleJson(RequestWithStationLogin requestDto);
+    Mono<SaleResponse> getSaleJson(RequestWithStationLogin requestDto);
 
     Mono<BlockSaleResponseDto> blockSale(BlockSaleDto requestDto);
 

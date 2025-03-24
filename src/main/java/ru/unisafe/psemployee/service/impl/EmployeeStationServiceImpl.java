@@ -12,7 +12,6 @@ import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
 import ru.unisafe.psemployee.dto.response.StationInfoMenuResponse;
 import ru.unisafe.psemployee.dto.response.StationInfoResponse;
-import ru.unisafe.psemployee.model.StationInfoExtended;
 import ru.unisafe.psemployee.model.Tts;
 import ru.unisafe.psemployee.repository.AchievementsRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.EmployeeRepositoryJOOQ;

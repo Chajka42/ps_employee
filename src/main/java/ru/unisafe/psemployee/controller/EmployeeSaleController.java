@@ -8,7 +8,7 @@ import ru.unisafe.psemployee.dto.request.*;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.BlockSaleResponseDto;
 import ru.unisafe.psemployee.dto.response.MegafonTariffResponse;
-import ru.unisafe.psemployee.dto.response.SaleResponseDto;
+import ru.unisafe.psemployee.dto.response.SaleResponse;
 import ru.unisafe.psemployee.service.EmployeeSaleService;
 
 @RequiredArgsConstructor
@@ -19,7 +19,7 @@ public class EmployeeSaleController {
     private final EmployeeSaleService employeeSaleService;
 
     @PostMapping("/getSaleJson")
-    public Mono<SaleResponseDto> getSaleJson(@Validated @RequestBody RequestWithStationLogin requestDto) {
+    public Mono<SaleResponse> getSaleJson(@Validated @RequestBody RequestWithStationLogin requestDto) {
         return employeeSaleService.getSaleJson(requestDto);
     }
 
