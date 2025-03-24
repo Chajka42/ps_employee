@@ -1,5 +1,6 @@
 package ru.unisafe.psemployee.controller;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -11,13 +12,11 @@ import ru.unisafe.psemployee.dto.request.*;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
 import ru.unisafe.psemployee.dto.response.StationInfoResponse;
-import ru.unisafe.psemployee.model.StationInfo;
-import ru.unisafe.psemployee.model.StationInfoExtended;
-import ru.unisafe.psemployee.model.StationInfoSupport;
 import ru.unisafe.psemployee.service.EmployeeStationService;
 
 @RequiredArgsConstructor
 @RequestMapping("/employee/api/stations")
+@Validated
 @RestController
 public class EmployeeStationController {
 
@@ -59,17 +58,19 @@ public class EmployeeStationController {
     }
 
     @GetMapping("/getStationInfo")
-    public Mono<StationInfoResponse> getStationInfo(@RequestParam String login) {
-        return employeeStationService.getStationInfo(login);
+    public Mono<StationInfoResponse> getStationInfo(@Validated StationInfoRequest request) {
+        return employeeStationService.getStationInfo(request.getLogin());
     }
 
     @GetMapping("/getStationInfoMenu")
-    public Mono<StationInfoResponse> getStationMenuInfo(@RequestParam String login) {
-        return employeeStationService.getStationMenuInfo(login);
+    public Mono<StationInfoResponse> getStationMenuInfo(@Validated StationInfoRequest request) {
+        return employeeStationService.getStationMenuInfo(request.getLogin());
     }
 
     @GetMapping("/getStationInfoSupport")
-    public Mono<StationInfoResponse> getStationInfoSupport(@RequestParam String login) {
-        return employeeStationService.getStationInfoSupport(login);
+    public Mono<StationInfoResponse> getStationInfoSupport(@Validated StationInfoRequest request) {
+        return employeeStationService.getStationInfoSupport(request.getLogin());
     }
+
+
 }

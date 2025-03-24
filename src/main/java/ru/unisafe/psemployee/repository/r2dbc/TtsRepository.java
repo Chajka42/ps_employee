@@ -17,6 +17,7 @@ public interface TtsRepository extends R2dbcRepository<Tts, Integer> {
 
     @Query("""
         SELECT
+            tts.login,
             tts.station_code, tts.partner_id, tts.station_key, tts.visor_id,
             tts.address, tts.i_o_info, tts.comment, tts.status, tts.time_open,
             tts.version_name, tts.version_code, tts.sub_status, tts.sn, tts.imei,
