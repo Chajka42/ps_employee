@@ -25,4 +25,6 @@ public interface EmployeeStationService {
     Mono<StationInfoResponse> getStationMenuInfo(String login);
 
     Mono<StationInfoResponse> getStationInfoSupport(String login);
+
+    Mono<BaseResponse> updateStationField();
 }

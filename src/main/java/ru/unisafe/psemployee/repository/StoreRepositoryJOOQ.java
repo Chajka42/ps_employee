@@ -25,14 +25,23 @@ public class StoreRepositoryJOOQ {
             return Mono.just(new BaseResponse(false, "Некорректный тип данных"));
         }
 
-        return Mono.from(dsl.update(table("store"))
-                        .set(field(request.getField()), value)
-                        .where(field("name_or_key").eq(request.getLogin()))
-                        .limit(1))
-                .map(rowsUpdated -> rowsUpdated > 0
-                        ? new BaseResponse(true, "Поле успешно обновлено")
-                        : new BaseResponse(false, "Станция не найдена"))
-                .doOnError(error -> log.error("Ошибка при обновлении store: {}", error.getMessage()));
+        return Mono.from(dsl.select(field(request.getField()))
+                        .from(table("store"))
+                        .where(field("name_or_key").eq(request.getLogin())))
+                .flatMap(currentValue -> {
+                    if (currentValue.getValue(0).equals(value)) {
+                        return Mono.just(new BaseResponse(true, "Значение уже установлено"));
+                    }
+                    return Mono.from(dsl.update(table("store"))
+                                    .set(field(request.getField()), value)
+                                    .where(field("name_or_key").eq(request.getLogin()))
+                                    .limit(1))
+                            .map(rowsUpdated -> rowsUpdated > 0
+                                    ? new BaseResponse(true, "Поле успешно обновлено")
+                                    : new BaseResponse(false, "Станция не найдена"));
+                })
+                .doOnError(error -> log.error("Ошибка при обновлении store: {}", error.getMessage()))
+                .onErrorResume(error -> Mono.just(new BaseResponse(false, "Произошла ошибка: " + error.getMessage())));
     }
 
     private Object parseValue(String type, String value) {

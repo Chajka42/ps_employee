@@ -180,4 +180,9 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
                 });
     }
 
+    @Override
+    public Mono<BaseResponse> updateStationField() {
+        return null;
+    }
+
 }

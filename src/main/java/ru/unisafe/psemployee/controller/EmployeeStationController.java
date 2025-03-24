@@ -27,16 +27,17 @@ public class EmployeeStationController {
         return employeeStationService.getCouponsInfo(request);
     }
 
-    @PostMapping("/changeCoupons")
+    @PatchMapping("/changeCoupons")
     public Mono<BaseResponse> changeCoupons(@Validated @RequestBody ChangeCouponsRequest changeCouponsRequest) {
         return employeeStationService.changeCoupons(changeCouponsRequest);
     }
 
-    @PostMapping("/changeStationStore")
+    @PatchMapping("/changeStationStore")
     public Mono<BaseResponse> changeStationStore(@Validated @RequestBody ChangeStationStoreRequest request) {
         return employeeStationService.changeStationStore(request);
     }
 
+    //TODO проверить идемпотентность
     @PostMapping("/createNewStation")
     public Mono<BaseResponse> createNewStation(@Validated @RequestBody CreateStationRequest request) {
         return employeeStationService.createStation(request);
@@ -72,5 +73,8 @@ public class EmployeeStationController {
         return employeeStationService.getStationInfoSupport(request.getLogin());
     }
 
-
+    @PatchMapping("/updateStationField")
+    public Mono<BaseResponse> updateStationField() {
+        return employeeStationService.updateStationField();
+    }
 }

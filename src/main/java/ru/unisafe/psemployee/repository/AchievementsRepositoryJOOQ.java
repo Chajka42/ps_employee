@@ -58,20 +58,30 @@ public class AchievementsRepositoryJOOQ {
     }
 
     public Mono<BaseResponse> changeCoupons(ChangeCouponsRequest request) {
+        log.info("Request positive or negative: {}", request.getIncrease());
         return Mono.from(dsl.select(field("coupons", Integer.class))
                         .from(table("achievements"))
                         .where(field("login").eq(request.getLogin())))
                 .flatMap(record -> {
-                    Integer currentCoupons = record.get("coupons", Integer.class);
-                    int newCoupons = request.isPlus()
+                    int currentCoupons = record.get("coupons", Integer.class);
+                    boolean isAdding = Boolean.TRUE.equals(request.getIncrease());
+                    log.info("isIncrease after Boolean.TRUE check: {}", isAdding);
+
+                    int newCoupons = isAdding
                             ? currentCoupons + request.getValue()
                             : currentCoupons - request.getValue();
+
+                    log.info("New coupons after calculation: {}", newCoupons);
+                    if (!isAdding && newCoupons < 0) {
+                        log.warn("Attempt to subtract more coupons than available!");
+                        return Mono.just(new BaseResponse(false, "Недостаточно купонов для списания"));
+                    }
 
                     return Mono.from(dsl.update(table("achievements"))
                                     .set(field("coupons"), newCoupons)
                                     .where(field("login").eq(request.getLogin())))
                             .then(saveAchievementsLog(request.getLogin(), request.getValue(), newCoupons,
-                                    request.isPlus() ? "Начисление бонуса" : "Списание купонов"))
+                                    isAdding ? "Начисление бонуса" : "Списание купонов"))
                             .thenReturn(new BaseResponse(true, "Купоны успешно обновлены"));
                 })
                 .defaultIfEmpty(new BaseResponse(false, "Станция не найдена"))
