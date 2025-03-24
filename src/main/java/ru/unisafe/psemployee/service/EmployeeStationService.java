@@ -7,6 +7,9 @@ import ru.unisafe.psemployee.dto.StationRecord;
 import ru.unisafe.psemployee.dto.request.*;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
+import ru.unisafe.psemployee.dto.response.StationInfoMenuResponse;
+import ru.unisafe.psemployee.dto.response.StationInfoResponse;
+import ru.unisafe.psemployee.model.StationInfoExtended;
 
 public interface EmployeeStationService {
     Mono<CouponsInfoResponse> getCouponsInfo(RequestWithStationLogin request);
@@ -18,4 +21,8 @@ public interface EmployeeStationService {
     Mono<BaseResponse> createStation(CreateStationRequest request);
 
     Flux<StationRecord> findStations(StationFilterDto filter);
+
+    Mono<StationInfoResponse> getStationInfo(String login);
+
+    Mono<StationInfoMenuResponse> getStationMenuInfo(String login);
 }

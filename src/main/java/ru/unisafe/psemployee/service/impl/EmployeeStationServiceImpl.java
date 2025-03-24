@@ -10,6 +10,9 @@ import ru.unisafe.psemployee.dto.StationRecord;
 import ru.unisafe.psemployee.dto.request.*;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
+import ru.unisafe.psemployee.dto.response.StationInfoMenuResponse;
+import ru.unisafe.psemployee.dto.response.StationInfoResponse;
+import ru.unisafe.psemployee.model.StationInfoExtended;
 import ru.unisafe.psemployee.model.Tts;
 import ru.unisafe.psemployee.repository.AchievementsRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.EmployeeRepositoryJOOQ;
@@ -124,6 +127,40 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
                         record.get("problem_solved_date", ZonedDateTime.class).toLocalDateTime(),
                         record.get("partner_name", String.class)
                 ));
+    }
+
+    @Override
+    public Mono<StationInfoResponse> getStationInfo(String login) {
+        return ttsRepository.getStationInfo(login)
+                .flatMap(stationInfo -> {
+                    StationInfoResponse stationInfoResponse = new StationInfoResponse();
+                    stationInfoResponse.setStationInfo(stationInfo);
+                    stationInfoResponse.setSuccess(Boolean.TRUE);
+                    stationInfoResponse.setMessage("Станция успешно найдена");
+                    return Mono.just(stationInfoResponse);
+                })
+                .switchIfEmpty(Mono.just(new StationInfoResponse("Станция не найдена", false, null)))
+                .onErrorResume(error -> {
+                    log.error("Произошла ошибка при поиске станции: {}", error.getMessage(), error);
+                    return Mono.just(new StationInfoResponse("Произошла ошибка", false, null));
+                });
+    }
+
+    @Override
+    public Mono<StationInfoMenuResponse> getStationMenuInfo(String login) {
+        return ttsRepository.getStationMenuInfo(login)
+                .flatMap(stationInfo -> {
+                    StationInfoMenuResponse stationInfoResponse = new StationInfoMenuResponse();
+                    stationInfoResponse.setStationInfo(stationInfo);
+                    stationInfoResponse.setSuccess(Boolean.TRUE);
+                    stationInfoResponse.setMessage("Станция успешно найдена");
+                    return Mono.just(stationInfoResponse);
+                })
+                .switchIfEmpty(Mono.just(new StationInfoMenuResponse("Станция не найдена", false, null)))
+                .onErrorResume(error -> {
+                    log.error("Произошла ошибка при поиске станции: {}", error.getMessage(), error);
+                    return Mono.just(new StationInfoMenuResponse("Произошла ошибка", false, null));
+                });
     }
 
 }

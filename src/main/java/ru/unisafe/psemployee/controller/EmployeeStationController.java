@@ -10,6 +10,9 @@ import ru.unisafe.psemployee.dto.StationRecord;
 import ru.unisafe.psemployee.dto.request.*;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
+import ru.unisafe.psemployee.dto.response.StationInfoMenuResponse;
+import ru.unisafe.psemployee.dto.response.StationInfoResponse;
+import ru.unisafe.psemployee.model.StationInfoExtended;
 import ru.unisafe.psemployee.service.EmployeeStationService;
 
 @RequiredArgsConstructor
@@ -52,5 +55,15 @@ public class EmployeeStationController {
     ) {
         StationFilterDto filter = new StationFilterDto(code, address, partnerId, visorId, isActive, isProblem, page, size);
         return employeeStationService.findStations(filter);
+    }
+
+    @GetMapping("/getStationInfo")
+    public Mono<StationInfoResponse> getStationInfo(@RequestParam String login) {
+        return employeeStationService.getStationInfo(login);
+    }
+
+    @GetMapping("/getStationInfoMenu")
+    public Mono<StationInfoMenuResponse> getStationMenuInfo(@RequestParam String login) {
+        return employeeStationService.getStationMenuInfo(login);
     }
 }
