@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.unisafe.psemployee.model.StationInfo;
+import ru.unisafe.psemployee.dto.StationInformation;
 
 @Data
 @Builder
@@ -13,5 +13,5 @@ import ru.unisafe.psemployee.model.StationInfo;
 public class StationInfoResponse {
     private String message;
     private boolean success;
-    private StationInfo stationInfo;
+    private StationInformation stationInfo;
 }

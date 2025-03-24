@@ -10,9 +10,10 @@ import ru.unisafe.psemployee.dto.StationRecord;
 import ru.unisafe.psemployee.dto.request.*;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
-import ru.unisafe.psemployee.dto.response.StationInfoMenuResponse;
 import ru.unisafe.psemployee.dto.response.StationInfoResponse;
+import ru.unisafe.psemployee.model.StationInfo;
 import ru.unisafe.psemployee.model.StationInfoExtended;
+import ru.unisafe.psemployee.model.StationInfoSupport;
 import ru.unisafe.psemployee.service.EmployeeStationService;
 
 @RequiredArgsConstructor
@@ -63,7 +64,12 @@ public class EmployeeStationController {
     }
 
     @GetMapping("/getStationInfoMenu")
-    public Mono<StationInfoMenuResponse> getStationMenuInfo(@RequestParam String login) {
+    public Mono<StationInfoResponse> getStationMenuInfo(@RequestParam String login) {
         return employeeStationService.getStationMenuInfo(login);
+    }
+
+    @GetMapping("/getStationInfoSupport")
+    public Mono<StationInfoResponse> getStationInfoSupport(@RequestParam String login) {
+        return employeeStationService.getStationInfoSupport(login);
     }
 }

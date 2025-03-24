@@ -13,7 +13,7 @@ import java.time.ZonedDateTime;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StationInfo implements StationInformation {
+public class StationInfoSupport implements StationInformation {
     private String login;
     private String stationCode;
     private String partnerId;
@@ -34,7 +34,16 @@ public class StationInfo implements StationInformation {
     private String imei;
     private String sn;
     private String phone;
-    private double lat;
-    private double lon;
-    private boolean isCleaning;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss", locale = "ru")
+    private ZonedDateTime answerDate;
+    private String plotterName;
+    private String thisStatus;
+    private String isHorizontal;
+    private String isLaser;
+    private String scaleX;
+    private String scaleY;
+    private String speed;
+    private String pressure;
+
 }
