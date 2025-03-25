@@ -8,6 +8,7 @@ import lombok.experimental.SuperBuilder;
 import ru.unisafe.psemployee.dto.StationInformation;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Data
 @SuperBuilder
@@ -37,4 +38,5 @@ public class StationInfo implements StationInformation {
     private double lat;
     private double lon;
     private boolean isCleaning;
+    private List<Journal> data;
 }

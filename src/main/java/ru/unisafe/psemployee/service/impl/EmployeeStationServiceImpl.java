@@ -11,11 +11,14 @@ import ru.unisafe.psemployee.dto.request.*;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
 import ru.unisafe.psemployee.dto.response.StationInfoResponse;
+import ru.unisafe.psemployee.model.Journal;
+import ru.unisafe.psemployee.model.StationInfo;
 import ru.unisafe.psemployee.model.Tts;
 import ru.unisafe.psemployee.repository.AchievementsRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.EmployeeRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.StationRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.StoreRepositoryJOOQ;
+import ru.unisafe.psemployee.repository.r2dbc.JournalRepository;
 import ru.unisafe.psemployee.repository.r2dbc.TtsRepository;
 import ru.unisafe.psemployee.service.ChangeFieldService;
 import ru.unisafe.psemployee.service.EmployeeStationService;
@@ -23,6 +26,7 @@ import ru.unisafe.psemployee.service.StationUtilsService;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -32,6 +36,7 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
     private final AchievementsRepositoryJOOQ achievementsRepository;
     private final StoreRepositoryJOOQ storeRepository;
     private final TtsRepository ttsRepository;
+    private final JournalRepository journalRepository;
     private final EmployeeRepositoryJOOQ employeeRepository;
     private final StationUtilsService stationUtilsService;
     private final StationRepositoryJOOQ stationRepositoryJOOQ;
@@ -142,6 +147,30 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
                 .switchIfEmpty(Mono.just(new StationInfoResponse("Станция не найдена", false, null)))
                 .onErrorResume(error -> {
                     log.error("Произошла ошибка при поиске станции: {}", error.getMessage(), error);
+                    return Mono.just(new StationInfoResponse("Произошла ошибка", false, null));
+                });
+    }
+
+    @Override
+    public Mono<StationInfoResponse> getJournalInfo(String login) {
+        return ttsRepository.getStationInfo(login)
+                .flatMap(stationInfo ->
+                        journalRepository.findByLoginOrderByIdDesc(login)
+                                .collectList()
+                                .map(journalInfo -> {
+                                    stationInfo.setData(journalInfo);
+
+                                    StationInfoResponse response = new StationInfoResponse();
+                                    response.setStationInfo(stationInfo);
+                                    response.setSuccess(true);
+                                    response.setMessage("Станция успешно найдена");
+
+                                    return response;
+                                })
+                )
+                .switchIfEmpty(Mono.just(new StationInfoResponse("Станция не найдена", false, null)))
+                .onErrorResume(error -> {
+                    log.error("Ошибка при получении данных: {}", error.getMessage(), error);
                     return Mono.just(new StationInfoResponse("Произошла ошибка", false, null));
                 });
     }
