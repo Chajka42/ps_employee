@@ -135,4 +135,6 @@ public interface TtsRepository extends R2dbcRepository<Tts, Integer> {
     LEFT JOIN (SELECT login, plotter_name, this_status, is_horizontal, is_laser, scale_x, scale_y, speed, pressure, answer_date FROM support_firebase AS sf WHERE (login, answer_date) IN (SELECT login, MAX(answer_date) FROM support_firebase GROUP BY login)) AS support_firebase ON tts.login = support_firebase.login WHERE tts.login = :login;
 """)
     Mono<StationInfoSupport> getStationInfoSupport(String login);
+
+    Mono<Tts> getStationKeyByLogin(String login);
 }

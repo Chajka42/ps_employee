@@ -8,6 +8,7 @@ import ru.unisafe.psemployee.dto.StationRecord;
 import ru.unisafe.psemployee.dto.request.*;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
+import ru.unisafe.psemployee.dto.response.MasterKeyResponse;
 import ru.unisafe.psemployee.dto.response.StationInfoResponse;
 
 public interface EmployeeStationService {
@@ -30,4 +31,7 @@ public interface EmployeeStationService {
     Mono<BaseResponse> updateStationField(ChangeFieldRequest request);
 
     Mono<StationInfoResponse> getJournalInfo(String login);
+
+    Mono<MasterKeyResponse> getMasterKey(MasterKeyRequest request);
+
 }

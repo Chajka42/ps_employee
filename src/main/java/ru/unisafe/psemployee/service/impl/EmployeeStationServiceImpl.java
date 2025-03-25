@@ -10,6 +10,7 @@ import ru.unisafe.psemployee.dto.StationRecord;
 import ru.unisafe.psemployee.dto.request.*;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
+import ru.unisafe.psemployee.dto.response.MasterKeyResponse;
 import ru.unisafe.psemployee.dto.response.StationInfoResponse;
 import ru.unisafe.psemployee.model.Journal;
 import ru.unisafe.psemployee.model.StationInfo;
@@ -34,13 +35,14 @@ import java.util.List;
 public class EmployeeStationServiceImpl implements EmployeeStationService {
 
     private final AchievementsRepositoryJOOQ achievementsRepository;
+    private final EmployeeRepositoryJOOQ employeeRepository;
+    private final JournalRepository journalRepository;
+    private final StationRepositoryJOOQ stationRepositoryJOOQ;
     private final StoreRepositoryJOOQ storeRepository;
     private final TtsRepository ttsRepository;
-    private final JournalRepository journalRepository;
-    private final EmployeeRepositoryJOOQ employeeRepository;
-    private final StationUtilsService stationUtilsService;
-    private final StationRepositoryJOOQ stationRepositoryJOOQ;
+
     private final ChangeFieldService changeFieldService;
+    private final StationUtilsService stationUtilsService;
 
     @Override
     public Mono<CouponsInfoResponse> getCouponsInfo(RequestWithStationLogin request) {
@@ -212,6 +214,23 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
     @Override
     public Mono<BaseResponse> updateStationField(ChangeFieldRequest request) {
         return changeFieldService.changeField("tts", "login", request);
+    }
+
+    @Override
+    public Mono<MasterKeyResponse> getMasterKey(MasterKeyRequest request) {
+        return employeeRepository.getEmployeeVisorId(request.getToken())
+                .flatMap(foundedVisorId -> ttsRepository.getStationKeyByLogin(request.getLogin())
+                        .flatMap(tts -> {
+                            String newKey = stationUtilsService.generateMasterKeyNewOne(tts.getStationKey(), foundedVisorId);
+                            return Mono.just(new MasterKeyResponse(tts.getStationKey(), newKey, true, "Мастер ключ обновлен успешно"));
+                        })
+                        .switchIfEmpty(Mono.just(new MasterKeyResponse(null, null, false, "Станция не найдена")))
+                )
+                .switchIfEmpty(Mono.just(new MasterKeyResponse(null, null, false, "Сотрудник не найден или токен неверен")))
+                .onErrorResume(e -> {
+                    log.error("Ошибка при получении мастер-ключа: {}", e.getMessage(), e);
+                    return Mono.just(new MasterKeyResponse(null, null, false, "Внутренняя ошибка сервера"));
+                });
     }
 
 }

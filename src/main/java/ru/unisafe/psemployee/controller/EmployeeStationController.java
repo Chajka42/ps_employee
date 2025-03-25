@@ -10,6 +10,7 @@ import ru.unisafe.psemployee.dto.StationRecord;
 import ru.unisafe.psemployee.dto.request.*;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
+import ru.unisafe.psemployee.dto.response.MasterKeyResponse;
 import ru.unisafe.psemployee.dto.response.StationInfoResponse;
 import ru.unisafe.psemployee.service.EmployeeStationService;
 
@@ -81,4 +82,8 @@ public class EmployeeStationController {
         return employeeStationService.updateStationField(request);
     }
 
+    @PostMapping("/getMasterKey")
+    public Mono<MasterKeyResponse> getMasterKey(@Validated @RequestBody MasterKeyRequest request) {
+        return employeeStationService.getMasterKey(request);
+    }
 }

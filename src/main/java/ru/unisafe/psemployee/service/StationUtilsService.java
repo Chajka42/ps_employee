@@ -4,4 +4,6 @@ public interface StationUtilsService {
     String generateRandomToken();
 
     String generateRandomKey();
+
+    String generateMasterKeyNewOne(String stationKey, int who);
 }

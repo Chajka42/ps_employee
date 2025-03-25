@@ -32,7 +32,6 @@ public class NotificationServiceImpl implements NotificationService {
                         .build())
                 .build();
 
-        //TODO пишет ERROR: Requested entity was not found.
         return Mono.fromCallable(() -> firebaseMessaging.send(message))
                 .doOnSuccess(response -> log.info("Notification sent successfully: {}", response))
                 .doOnError(e -> log.error("Error sending notification", e))
