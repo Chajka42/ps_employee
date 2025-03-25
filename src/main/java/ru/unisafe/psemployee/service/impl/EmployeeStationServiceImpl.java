@@ -11,14 +11,13 @@ import ru.unisafe.psemployee.dto.request.*;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
 import ru.unisafe.psemployee.dto.response.StationInfoResponse;
-import ru.unisafe.psemployee.model.StationInfo;
-import ru.unisafe.psemployee.model.StationInfoSupport;
 import ru.unisafe.psemployee.model.Tts;
 import ru.unisafe.psemployee.repository.AchievementsRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.EmployeeRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.StationRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.StoreRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.r2dbc.TtsRepository;
+import ru.unisafe.psemployee.service.ChangeFieldService;
 import ru.unisafe.psemployee.service.EmployeeStationService;
 import ru.unisafe.psemployee.service.StationUtilsService;
 
@@ -36,6 +35,7 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
     private final EmployeeRepositoryJOOQ employeeRepository;
     private final StationUtilsService stationUtilsService;
     private final StationRepositoryJOOQ stationRepositoryJOOQ;
+    private final ChangeFieldService changeFieldService;
 
     @Override
     public Mono<CouponsInfoResponse> getCouponsInfo(RequestWithStationLogin request) {
@@ -58,8 +58,8 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
     }
 
     @Override
-    public Mono<BaseResponse> changeStationStore(ChangeStationStoreRequest request) {
-        return storeRepository.changeStationStore(request);
+    public Mono<BaseResponse> changeStationStore(ChangeFieldRequest request) {
+        return changeFieldService.changeField("store", "name_or_key", request);
     }
 
     @Override
@@ -181,8 +181,8 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
     }
 
     @Override
-    public Mono<BaseResponse> updateStationField() {
-        return null;
+    public Mono<BaseResponse> updateStationField(ChangeFieldRequest request) {
+        return changeFieldService.changeField("tts", "login", request);
     }
 
 }

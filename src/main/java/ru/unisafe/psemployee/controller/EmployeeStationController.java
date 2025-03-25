@@ -1,6 +1,5 @@
 package ru.unisafe.psemployee.controller;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -33,11 +32,10 @@ public class EmployeeStationController {
     }
 
     @PatchMapping("/changeStationStore")
-    public Mono<BaseResponse> changeStationStore(@Validated @RequestBody ChangeStationStoreRequest request) {
+    public Mono<BaseResponse> changeStationStore(@Validated @RequestBody ChangeFieldRequest request) {
         return employeeStationService.changeStationStore(request);
     }
 
-    //TODO проверить идемпотентность
     @PostMapping("/createNewStation")
     public Mono<BaseResponse> createNewStation(@Validated @RequestBody CreateStationRequest request) {
         return employeeStationService.createStation(request);
@@ -74,7 +72,8 @@ public class EmployeeStationController {
     }
 
     @PatchMapping("/updateStationField")
-    public Mono<BaseResponse> updateStationField() {
-        return employeeStationService.updateStationField();
+    public Mono<BaseResponse> updateStationField(@Validated @RequestBody ChangeFieldRequest request) {
+        return employeeStationService.updateStationField(request);
     }
+
 }

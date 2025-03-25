@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChangeStationStoreRequest {
+public class ChangeFieldRequest {
     @NotBlank(message = "Login cannot be empty")
     private String login;
     @NotBlank(message = "field cannot be empty")

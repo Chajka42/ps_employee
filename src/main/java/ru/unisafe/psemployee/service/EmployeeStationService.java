@@ -14,7 +14,7 @@ public interface EmployeeStationService {
 
     Mono<BaseResponse> changeCoupons(ChangeCouponsRequest request);
 
-    Mono<BaseResponse> changeStationStore(ChangeStationStoreRequest request);
+    Mono<BaseResponse> changeStationStore(ChangeFieldRequest request);
 
     Mono<BaseResponse> createStation(CreateStationRequest request);
 
@@ -26,5 +26,5 @@ public interface EmployeeStationService {
 
     Mono<StationInfoResponse> getStationInfoSupport(String login);
 
-    Mono<BaseResponse> updateStationField();
+    Mono<BaseResponse> updateStationField(ChangeFieldRequest request);
 }
