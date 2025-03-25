@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @Data
 @AllArgsConstructor
@@ -15,10 +15,16 @@ import java.time.LocalDateTime;
 public class Journal {
     @Id
     private Integer id;
+    private Long techPodId;
     private String techPodName;
+    private String login;
+    private Integer partnerId;
+    private String partnerCode;
+    private Integer managerId;
+    private String managerName;
     private String problemType;
     private String problemText;
     private Boolean isYes;
-    private LocalDateTime date;
-    private String login;
+    private Boolean isManagerNeed;
+    private Timestamp date;
 }

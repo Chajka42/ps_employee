@@ -34,4 +34,6 @@ public interface EmployeeStationService {
 
     Mono<MasterKeyResponse> getMasterKey(MasterKeyRequest request);
 
+    Mono<BaseResponse> saveSupportRequest(AddJournalRequest request);
+
 }

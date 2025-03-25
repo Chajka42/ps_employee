@@ -25,6 +25,7 @@ import ru.unisafe.psemployee.service.ChangeFieldService;
 import ru.unisafe.psemployee.service.EmployeeStationService;
 import ru.unisafe.psemployee.service.StationUtilsService;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -231,6 +232,57 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
                     log.error("Ошибка при получении мастер-ключа: {}", e.getMessage(), e);
                     return Mono.just(new MasterKeyResponse(null, null, false, "Внутренняя ошибка сервера"));
                 });
+    }
+
+    @Override
+    public Mono<BaseResponse> saveSupportRequest(AddJournalRequest request) {
+        if (request.getProblemText().length() < 13) {
+            return Mono.just(new BaseResponse(false, "Описание слишком короткое"));
+        } else if (request.getProblemText().length() > 250) {
+            return Mono.just(new BaseResponse(false, "Описание слишком длинное"));
+        }
+
+        return employeeRepository.getEmployeeName(request.getToken())
+                .flatMap(techSupportName -> {
+                    Journal journal = new Journal();
+                    journal.setTechPodId(0L);
+                    journal.setLogin(request.getLogin());
+                    journal.setTechPodName(techSupportName);
+                    journal.setPartnerId(request.getPartnerId());
+                    journal.setPartnerCode(request.getCode());
+                    journal.setManagerId(request.getVisorId());
+                    journal.setManagerName(request.getVisorName());
+                    journal.setProblemType(request.getProblemType());
+                    journal.setProblemText(request.getProblemText());
+                    journal.setIsYes(!request.getResolved());
+                    journal.setIsManagerNeed(false);
+                    journal.setDate(new Timestamp(System.currentTimeMillis()));
+
+                    return journalRepository.save(journal)
+                            .then(sendNotificationIfNeeded(request))
+                            .thenReturn(new BaseResponse(true, "Запрос успешно сохранен"));
+                })
+                .onErrorResume(e -> Mono.just(new BaseResponse(false, "Внутренняя ошибка сервера: " + e.getMessage())));
+    }
+
+    private Mono<Void> sendNotificationIfNeeded(AddJournalRequest request) {
+        if (!request.getResolved()) {
+            return Mono.empty();
+        }
+
+        String message = "Тех.Под.Алерт: станция " + request.getLogin() + " требует твоего срочного вмешательства! Почитай журнал станции.";
+
+        //TODO Дописать этот ужас. Заставить FCM работать
+//        return getVisorIdByStation(request.getLogin())
+//                .flatMap(visorId -> getEmployeeIdByVisorId(visorId)
+//                        .flatMap(employeeId -> employeeConsole.getEmployeeFirebaseToken(employeeId)
+//                                .flatMap(token -> cfmService.sendNotification("title", message, token)
+//                                        .then(cfmEmployee.insertNewNotification(message, request.getLogin(), employeeId))
+//                                )
+//                        )
+//                )
+//                .then();
+        return null;
     }
 
 }

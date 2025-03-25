@@ -72,11 +72,6 @@ public class EmployeeStationController {
         return employeeStationService.getStationInfoSupport(request.getLogin());
     }
 
-    @GetMapping("/getJournalInfo")
-    public Mono<StationInfoResponse> getJournalInfo(@Validated StationInfoRequest request) {
-        return employeeStationService.getJournalInfo(request.getLogin());
-    }
-
     @PatchMapping("/updateStationField")
     public Mono<BaseResponse> updateStationField(@Validated @RequestBody ChangeFieldRequest request) {
         return employeeStationService.updateStationField(request);
@@ -85,5 +80,15 @@ public class EmployeeStationController {
     @PostMapping("/getMasterKey")
     public Mono<MasterKeyResponse> getMasterKey(@Validated @RequestBody MasterKeyRequest request) {
         return employeeStationService.getMasterKey(request);
+    }
+
+    @GetMapping("/getJournalInfo")
+    public Mono<StationInfoResponse> getJournalInfo(@Validated StationInfoRequest request) {
+        return employeeStationService.getJournalInfo(request.getLogin());
+    }
+
+    @GetMapping("/addJournalRequest")
+    public Mono<BaseResponse> saveSupportRequest(@Validated AddJournalRequest request) {
+        return employeeStationService.saveSupportRequest(request);
     }
 }
