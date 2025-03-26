@@ -17,4 +17,5 @@ public class OpenApiConfig {
                         .description("Spring boot RESTful API for Employee using OpenAPI and Swagger UI"))
                 .addServersItem(new Server().url("http://localhost:8080"));
     }
+
 }
