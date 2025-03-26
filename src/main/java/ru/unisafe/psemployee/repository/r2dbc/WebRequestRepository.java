@@ -4,19 +4,17 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import ru.unisafe.psemployee.model.WebVisiting;
+import ru.unisafe.psemployee.model.WebRequest;
 
 @Repository
-public interface WebVisitingRepository extends R2dbcRepository<WebVisiting, Long> {
-
-    Mono<WebVisiting> findWebVisitingById(Long id);
+public interface WebRequestRepository extends R2dbcRepository<WebRequest, Long> {
 
     @Query("""
-        SELECT * FROM web_visiting
+        SELECT *
+        FROM web_requests
         WHERE login = :login
         ORDER BY id DESC
         LIMIT 20
     """)
-    Flux<WebVisiting> findLatestByLogin(String login);
+    Flux<WebRequest> findLatestByLogin(String login);
 }

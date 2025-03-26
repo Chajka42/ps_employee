@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+import ru.unisafe.psemployee.dto.response.StationStrVstRstResponse;
 import ru.unisafe.psemployee.model.WebVisiting;
 import ru.unisafe.psemployee.service.WebVisitingService;
 
@@ -17,7 +18,12 @@ public class EmployeeVisitingController {
     private final WebVisitingService webVisitingService;
 
     @GetMapping("/getVisitInfo")
-    public Mono<WebVisiting> findWebVisitingById(@RequestParam Long id){
+    public Mono<WebVisiting> findWebVisitingById(@RequestParam Long id) {
         return webVisitingService.findWebVisitingById(id);
+    }
+
+    @GetMapping("/getStationStrVstRst")
+    public Mono<StationStrVstRstResponse> getStationStrVstRst(@RequestParam String login) {
+        return webVisitingService.getStationStrVstRst(login);
     }
 }
