@@ -12,14 +12,13 @@ import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.CouponsInfoResponse;
 import ru.unisafe.psemployee.dto.response.MasterKeyResponse;
 import ru.unisafe.psemployee.dto.response.StationInfoResponse;
-import ru.unisafe.psemployee.model.Journal;
-import ru.unisafe.psemployee.model.StationInfo;
-import ru.unisafe.psemployee.model.Tts;
+import ru.unisafe.psemployee.model.*;
 import ru.unisafe.psemployee.repository.AchievementsRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.EmployeeRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.StationRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.StoreRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.r2dbc.JournalRepository;
+import ru.unisafe.psemployee.repository.r2dbc.StoreItemsRepository;
 import ru.unisafe.psemployee.repository.r2dbc.TtsRepository;
 import ru.unisafe.psemployee.service.ChangeFieldService;
 import ru.unisafe.psemployee.service.EmployeeStationService;
@@ -40,6 +39,7 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
     private final JournalRepository journalRepository;
     private final StationRepositoryJOOQ stationRepositoryJOOQ;
     private final StoreRepositoryJOOQ storeRepository;
+    private final StoreItemsRepository storeItemsRepository;
     private final TtsRepository ttsRepository;
 
     private final ChangeFieldService changeFieldService;
@@ -67,7 +67,7 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
 
     @Override
     public Mono<BaseResponse> changeStationStore(ChangeFieldRequest request) {
-        return changeFieldService.changeField("store", "name_or_key", request);
+        return changeFieldService.changeField("store", "login", request);
     }
 
     @Override
@@ -213,6 +213,29 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
     }
 
     @Override
+    public Mono<StationInfoResponse> getStationInfoWithItemList(String login) {
+        return ttsRepository.getStationInfo(login)
+                .flatMap(stationInfo ->
+                        storeItemsRepository.findByPartnerId(Integer.parseInt(stationInfo.getPartnerId()))
+                                .collectList()
+                                .map(itemList -> {
+                                    stationInfo.setData(itemList);
+
+                                    return StationInfoResponse.builder()
+                                            .stationInfo(stationInfo)
+                                            .success(true)
+                                            .message("Станция успешно найдена")
+                                            .build();
+                                })
+                )
+                .switchIfEmpty(Mono.just(new StationInfoResponse("Станция не найдена", false, null)))
+                .onErrorResume(error -> {
+                    log.error("Ошибка при получении данных: {}", error.getMessage(), error);
+                    return Mono.just(new StationInfoResponse("Произошла ошибка", false, null));
+                });
+    }
+
+    @Override
     public Mono<BaseResponse> updateStationField(ChangeFieldRequest request) {
         return changeFieldService.changeField("tts", "login", request);
     }
@@ -255,8 +278,8 @@ public class EmployeeStationServiceImpl implements EmployeeStationService {
                     journal.setProblemType(request.getProblemType());
                     journal.setProblemText(request.getProblemText());
                     journal.setIsYes(!request.getResolved());
-                    journal.setIsManagerNeed(false);
-                    journal.setDate(new Timestamp(System.currentTimeMillis()));
+                    journal.setIsManagerRequired(false);
+                    journal.setDate(ZonedDateTime.now());
 
                     return journalRepository.save(journal)
                             .then(sendNotificationIfNeeded(request))

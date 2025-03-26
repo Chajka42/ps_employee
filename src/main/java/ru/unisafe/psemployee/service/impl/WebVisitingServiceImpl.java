@@ -2,24 +2,24 @@ package ru.unisafe.psemployee.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.unisafe.psemployee.dto.NoteDto;
-import ru.unisafe.psemployee.dto.RequestDto;
-import ru.unisafe.psemployee.dto.StationSummaryDto;
-import ru.unisafe.psemployee.dto.VisitingDto;
+import ru.unisafe.psemployee.dto.*;
+import ru.unisafe.psemployee.dto.request.VisitStationRequest;
+import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.StationStrVstRstResponse;
-import ru.unisafe.psemployee.model.StationNote;
-import ru.unisafe.psemployee.model.Store;
-import ru.unisafe.psemployee.model.WebRequest;
-import ru.unisafe.psemployee.model.WebVisiting;
-import ru.unisafe.psemployee.repository.r2dbc.StationNoteRepository;
-import ru.unisafe.psemployee.repository.r2dbc.StoreRepository;
-import ru.unisafe.psemployee.repository.r2dbc.WebRequestRepository;
-import ru.unisafe.psemployee.repository.r2dbc.WebVisitingRepository;
+import ru.unisafe.psemployee.model.*;
+import ru.unisafe.psemployee.repository.EmployeeRepositoryJOOQ;
+import ru.unisafe.psemployee.repository.QuestRepository;
+import ru.unisafe.psemployee.repository.r2dbc.*;
+import ru.unisafe.psemployee.service.OpenStreetMapService;
 import ru.unisafe.psemployee.service.WebVisitingService;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,6 +30,13 @@ public class WebVisitingServiceImpl implements WebVisitingService {
     private final StoreRepository storeRepository;
     private final WebRequestRepository webRequestRepository;
     private final StationNoteRepository stationNoteRepository;
+    private final TtsRepository ttsRepository;
+    private final WebItemRepository webItemRepository;
+
+    private final EmployeeRepositoryJOOQ employeeRepository;
+    private final QuestRepository questRepository;
+
+    private final OpenStreetMapService openStreetMapService;
 
     @Override
     public Mono<WebVisiting> findWebVisitingById(Long id) {
@@ -129,6 +136,92 @@ public class WebVisitingServiceImpl implements WebVisitingService {
                 .created(stationNote.getCreated())
                 .employeeName(stationNote.getEmployeeName())
                 .id(stationNote.getId())
+                .build();
+    }
+
+    //TODO оттестировать этот пиздец
+    @Override
+    public Mono<BaseResponse> createVisit(VisitStationRequest request) {
+        boolean isDefectGathering = request.isDefectGathering();
+        boolean isProblemSolved = request.isProblemSolved();
+        String login = request.getLogin();
+        String token = request.getToken();
+
+        Mono<String> visorNameMono = employeeRepository.getEmployeeName(token);
+        Mono<Integer> visorIdMono = employeeRepository.getEmployeeVisorId(token);
+        Mono<String> addressMono = openStreetMapService.getAddressFromCoordinates(request.getLat(), request.getLon());
+
+        Mono<Void> resetDefects = isDefectGathering ? storeRepository.resetStoreDefects(login) : Mono.empty();
+
+        Mono<Void> updateProblemDate = isProblemSolved
+                ? ttsRepository.updateProblemSolvedDateByLogin(login, LocalDateTime.now())
+                : Mono.empty();
+
+        Mono<WebVisiting> createVisit = Mono.zip(visorNameMono, visorIdMono, addressMono)
+                .map(tuple -> toWebVisiting(request, tuple.getT1(), tuple.getT2(), tuple.getT3()))
+                .flatMap(webVisitingRepository::save);
+
+        Mono<Boolean> insertItems = createVisit.flatMap(visit -> {
+            if (request.getDataList() != null && !request.getDataList().isEmpty() && Objects.nonNull(visit.getId())) {
+                return Flux.fromIterable(request.getDataList())
+                        .map(webItem -> {
+                            WebItem wi = new WebItem();
+                            wi.setRequestId(0);
+                            wi.setToTt(true);
+                            wi.setLogin(login);
+                            wi.setItemId(webItem.getId());
+                            wi.setItemName(webItem.getName());
+                            wi.setItemTeg(webItem.getTeg());
+                            wi.setItemValue(webItem.getValue());
+                            wi.setVisitId(visit.getId());
+                            return wi;
+                        })
+                        .collectList()
+                        .map(webItemRepository::saveAll) // saveAll уже возвращает Mono<Void>
+                        .then(Mono.just(true));
+            }
+            return Mono.just(false);
+        });
+
+        Mono<Void> updateQuestProgress = isProblemSolved
+                ? visorIdMono.flatMap(visorId -> {
+            String problem = request.getProblemOrigin();
+            boolean isUpdate = problem.contains("обновление");
+            boolean isNoCuts = problem.contains("резов");
+            boolean isDefect = problem.contains("брака");
+            boolean isPlan = problem.contains("план");
+            boolean isFrod = problem.contains("фрод");
+
+            return questRepository.updateQuestProgress(visorId, isUpdate, isNoCuts, isDefect, isPlan, isFrod);
+        })
+                : Mono.empty();
+
+        return resetDefects
+                .then(updateProblemDate)
+                .then(createVisit)
+                .flatMap(visit -> insertItems)
+                .then(updateQuestProgress)
+                .thenReturn(new BaseResponse(true, "Визит успешно создан"))
+                .onErrorResume(e -> Mono.just(new BaseResponse(false, "Ошибка сервера: " + e.getMessage())));
+    }
+
+    private WebVisiting toWebVisiting(VisitStationRequest request, String visorName, Integer visorId, String visitingAddress) {
+        return WebVisiting.builder()
+                .login(request.getLogin())
+                .stationCode(request.getCode())
+                .visorId(visorId)
+                .visorName(visorName)
+                .address(request.getAddress())
+                .partnerId(request.getPartnerId())
+                .partnerName(request.getPartnerName())
+                .created(LocalDateTime.now())
+                .lat(request.getLat())
+                .lon(request.getLon())
+                .visitAddress(visitingAddress)
+                .isDefectGathering(request.isDefectGathering())
+                .isProblemSolved(request.isProblemSolved())
+                .problemDescription(request.getProblemDescription())
+                .comment(request.getComment())
                 .build();
     }
 }

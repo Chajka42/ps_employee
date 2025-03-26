@@ -18,7 +18,7 @@ public class StoreRepositoryJOOQ {
 
     public Mono<Void> insertStore(String name, int visorId, String login) {
         return Mono.from(dsl.insertInto(table("store"))
-                        .set(field("name_or_key"), login)
+                        .set(field("login"), login)
                         .set(field("visor_name"), name)
                         .set(field("visor_id"), visorId))
                 .then();

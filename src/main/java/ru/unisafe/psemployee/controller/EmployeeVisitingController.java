@@ -1,11 +1,12 @@
 package ru.unisafe.psemployee.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import ru.unisafe.psemployee.dto.request.VisitStationRequest;
+import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.StationStrVstRstResponse;
 import ru.unisafe.psemployee.model.WebVisiting;
 import ru.unisafe.psemployee.service.WebVisitingService;
@@ -26,4 +27,11 @@ public class EmployeeVisitingController {
     public Mono<StationStrVstRstResponse> getStationStrVstRst(@RequestParam String login) {
         return webVisitingService.getStationStrVstRst(login);
     }
+
+    @PostMapping("/createVisit")
+    public Mono<BaseResponse> createVisit(
+            @Validated @RequestBody VisitStationRequest visitRequest) {
+        return webVisitingService.createVisit(visitRequest);
+    }
+
 }

@@ -1,13 +1,17 @@
 package ru.unisafe.psemployee.repository.r2dbc;
 
+import org.springframework.data.r2dbc.repository.Modifying;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.model.StationInfo;
 import ru.unisafe.psemployee.model.StationInfoExtended;
 import ru.unisafe.psemployee.model.StationInfoSupport;
 import ru.unisafe.psemployee.model.Tts;
+
+import java.time.LocalDateTime;
 
 @Repository
 public interface TtsRepository extends R2dbcRepository<Tts, Integer> {
@@ -21,6 +25,7 @@ public interface TtsRepository extends R2dbcRepository<Tts, Integer> {
             tts.station_code, tts.partner_id, tts.station_key, tts.visor_id,
             tts.address, tts.i_o_info, tts.comment, tts.status, tts.time_open,
             tts.version_name, tts.version_code, tts.sub_status, tts.sn, tts.imei,
+            tts.is_problem, tts.problem_description,
             tts.phone, tts.lat, tts.lon, tts.is_cleaning,
             partners.partner_name AS partner_name,
             COALESCE(achievements.coupons, 0) AS coupons,
@@ -50,7 +55,7 @@ public interface TtsRepository extends R2dbcRepository<Tts, Integer> {
                 SUM(lap_gloss + lap_mat) AS sum_lap,
                 SUM(wat_gloss + wat_mat) AS sum_wat
             FROM store
-            WHERE name_or_key = :login
+            WHERE login = :login
         ),
         t3 AS (
             SELECT
@@ -137,4 +142,8 @@ public interface TtsRepository extends R2dbcRepository<Tts, Integer> {
     Mono<StationInfoSupport> getStationInfoSupport(String login);
 
     Mono<Tts> getStationKeyByLogin(String login);
+
+    @Modifying
+    @Query("UPDATE tts SET problem_solved_date = :problemSolvedDate WHERE login = :login")
+    Mono<Void> updateProblemSolvedDateByLogin(@Param("login") String login, @Param("problemSolvedDate") LocalDateTime problemSolvedDate);
 }

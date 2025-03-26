@@ -4,6 +4,7 @@ package ru.unisafe.psemployee.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.apache.poi.ss.formula.functions.T;
 import ru.unisafe.psemployee.dto.StationInformation;
 
 import java.time.ZonedDateTime;
@@ -13,7 +14,7 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class StationInfoExtended extends StationInfo implements StationInformation {
+public class StationInfoExtended extends StationInfo<T> implements StationInformation {
     private int rrPlan;
     private int rrPrognosis;
     private int rrPercent;

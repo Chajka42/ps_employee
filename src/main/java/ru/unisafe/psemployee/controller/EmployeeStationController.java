@@ -72,6 +72,11 @@ public class EmployeeStationController {
         return employeeStationService.getStationInfoSupport(request.getLogin());
     }
 
+    @GetMapping("/getStationInfoWithItemList")
+    public Mono<StationInfoResponse> getStationInfoWithItemList(@Validated StationInfoRequest request) {
+        return employeeStationService.getStationInfoWithItemList(request.getLogin());
+    }
+
     @PatchMapping("/updateStationField")
     public Mono<BaseResponse> updateStationField(@Validated @RequestBody ChangeFieldRequest request) {
         return employeeStationService.updateStationField(request);

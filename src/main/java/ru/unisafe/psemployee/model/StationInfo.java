@@ -14,7 +14,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StationInfo implements StationInformation {
+public class StationInfo<T> implements StationInformation {
     private String login;
     private String stationCode;
     private String partnerId;
@@ -38,5 +38,7 @@ public class StationInfo implements StationInformation {
     private double lat;
     private double lon;
     private boolean isCleaning;
-    private List<Journal> data;
+    private boolean isProblem;
+    private String problemDescription;
+    private List<T> data;
 }

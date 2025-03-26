@@ -1,6 +1,5 @@
 package ru.unisafe.psemployee.service;
 
-import jakarta.validation.constraints.NotBlank;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.dto.StationFilterDto;
@@ -36,4 +35,5 @@ public interface EmployeeStationService {
 
     Mono<BaseResponse> saveSupportRequest(AddJournalRequest request);
 
+    Mono<StationInfoResponse> getStationInfoWithItemList(String login);
 }

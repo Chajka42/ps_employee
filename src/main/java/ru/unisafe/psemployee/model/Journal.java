@@ -1,12 +1,13 @@
 package ru.unisafe.psemployee.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.sql.Timestamp;
+import java.time.ZonedDateTime;
 
 @Data
 @AllArgsConstructor
@@ -25,6 +26,7 @@ public class Journal {
     private String problemType;
     private String problemText;
     private Boolean isYes;
-    private Boolean isManagerNeed;
-    private Timestamp date;
+    private Boolean isManagerRequired;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss", locale = "ru")
+    private ZonedDateTime date;
 }
