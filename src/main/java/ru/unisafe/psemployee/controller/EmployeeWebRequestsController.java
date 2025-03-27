@@ -1,6 +1,7 @@
 package ru.unisafe.psemployee.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -23,7 +24,12 @@ public class EmployeeWebRequestsController {
     }
 
     @PostMapping("/receiveRequest")
-    public Mono<BaseResponse> receiveRequest(@Validated @RequestBody WebRequestReceiveRequest request) {
+    public Mono<ResponseEntity<BaseResponse>> receiveRequest(@Validated @RequestBody WebRequestReceiveRequest request) {
         return webVisitingService.receiveRequest(request);
+    }
+
+    @DeleteMapping("/deleteRequest")
+    public Mono<ResponseEntity<BaseResponse>> deleteRequest(@Validated @RequestBody WebRequestReceiveRequest request) {
+        return webVisitingService.deleteRequest(request);
     }
 }

@@ -22,6 +22,10 @@ public interface WebRequestRepository extends R2dbcRepository<WebRequest, Long> 
     Flux<WebRequest> findLatestByLogin(String login);
 
     @Modifying
-    @Query("UPDATE web_requests SET is_received = true, was_received = NOW() WHERE id = :id LIMIT 1")
-    Mono<Void> markAsReceived(@Param("id") long id);
+    @Query("""
+        UPDATE web_requests
+        SET is_received = true, was_received = NOW()
+        WHERE id = :requestId
+    """)
+    Mono<Integer> markAsReceived(@Param("requestId") Long requestId);
 }

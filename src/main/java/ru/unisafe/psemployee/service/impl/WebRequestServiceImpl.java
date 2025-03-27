@@ -3,6 +3,8 @@ package ru.unisafe.psemployee.service.impl;
 import io.r2dbc.spi.Row;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -53,15 +55,22 @@ public class WebRequestServiceImpl implements WebRequestService {
     }
 
     @Override
-    public Mono<BaseResponse> receiveRequest(WebRequestReceiveRequest request) {
+    public Mono<ResponseEntity<BaseResponse>> receiveRequest(WebRequestReceiveRequest request) {
         long requestId = request.getRequestId();
 
         return webRequestRepository.markAsReceived(requestId)
-                .then(updateMainStore(requestId))
-                .thenReturn(new BaseResponse(true, "Заявка успешно получена"))
+                .flatMap(updatedRows -> {
+                    if (updatedRows == 0) {
+                        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(new BaseResponse(false, "Заявка с таким requestId не найдена")));
+                    }
+                    return updateMainStore(requestId)
+                            .thenReturn(ResponseEntity.ok(new BaseResponse(true, "Заявка успешно получена")));
+                })
                 .onErrorResume(err -> {
                     log.error("Ошибка при обработке заявки", err);
-                    return Mono.just(new BaseResponse(false, "Ошибка при обновлении данных"));
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(new BaseResponse(false, "Ошибка при обновлении данных")));
                 });
     }
 
@@ -70,6 +79,28 @@ public class WebRequestServiceImpl implements WebRequestService {
                 .flatMap(item -> storeItemsRepository
                         .updateItemValue(item.getItemId(), item.getItemValue()))
                 .then();
+    }
+
+    @Override
+    public Mono<ResponseEntity<BaseResponse>> deleteRequest(WebRequestReceiveRequest request) {
+        long requestId = request.getRequestId();
+
+        return webRequestRepository.existsById(requestId)
+                .flatMap(exists -> {
+                    if (!exists) {
+                        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(new BaseResponse(false, "Реквест с таким requestId не найден")));
+                    }
+                    return webRequestRepository.deleteById(requestId)
+                            .then(Mono.just(ResponseEntity
+                                    .status(HttpStatus.OK)
+                                    .body(new BaseResponse(true, "Реквест успешно удален"))));
+                })
+                .onErrorResume(err -> {
+                    log.error("Ошибка при удалении реквеста: {}", err.getMessage(), err);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(new BaseResponse(false, "Ошибка сервера")));
+                });
     }
 
     private WebRequest mapRowToWebRequest(Row row) {
