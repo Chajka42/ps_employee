@@ -2,11 +2,11 @@ package ru.unisafe.psemployee.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.unisafe.psemployee.dto.*;
+import ru.unisafe.psemployee.dto.request.AddStationNoteRequest;
+import ru.unisafe.psemployee.dto.request.DisableNoteRequest;
 import ru.unisafe.psemployee.dto.request.VisitStationRequest;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.StationStrVstRstResponse;
@@ -72,8 +72,6 @@ public class WebVisitingServiceImpl implements WebVisitingService {
                     return Mono.just(StationStrVstRstResponse.builder().success(false).build());
                 });
     }
-
-
 
     @Override
     public Mono<BaseResponse> createVisit(VisitStationRequest request) {
@@ -149,5 +147,61 @@ public class WebVisitingServiceImpl implements WebVisitingService {
                 });
     }
 
+    @Override
+    public Mono<BaseResponse> addNote(AddStationNoteRequest request) {
+        String login = request.getLogin();
+        String token = request.getToken();
+        String note = request.getNote();
+
+        log.info("Добавление заметки: login={}, note={}, token={}", login, note, token);
+
+        return employeeRepository.getEmployeeName(token)
+                .zipWith(employeeRepository.getEmployeeOriginId(token))
+                .flatMap(tuple -> {
+                    String employeeName = tuple.getT1();
+                    int employeeId = tuple.getT2();
+
+                    log.info("Получены данные сотрудника: name={}, id={}", employeeName, employeeId);
+
+                    StationNote noteDto = new StationNote();
+                    noteDto.setLogin(login);
+                    noteDto.setNote(note);
+                    noteDto.setEmployeeId(employeeId);
+                    noteDto.setEmployeeName(employeeName);
+
+                    return stationNoteRepository.save(noteDto)
+                            .flatMap(stationNote -> {
+                                if (Objects.nonNull(stationNote.getId())) {
+                                    log.info("Заметка успешно добавлена: id={}", stationNote.getId());
+                                    return Mono.just(new BaseResponse(true, "Заметка успешно добавлена"));
+                                } else {
+                                    log.warn("Ошибка при сохранении заметки");
+                                    return Mono.just(new BaseResponse(false, "Произошла ошибка при добавлении заметки"));
+                                }
+                            });
+                })
+                .onErrorResume(e -> {
+                    log.error("Ошибка при добавлении заметки", e);
+                    return Mono.just(new BaseResponse(false, "Ошибка сервера: " + e.getMessage()));
+                });
+    }
+
+    @Override
+    public Mono<BaseResponse> disableNote(DisableNoteRequest request) {
+        Long noteId = request.getNoteId();
+
+        log.info("Деактивация заметки: noteId={}", noteId);
+
+        return stationNoteRepository.deactivateNote(noteId)
+                .flatMap(note -> {
+                    log.info("Заметка деактивирована: {}", note);
+                    return Mono.just(new BaseResponse(true, "Заметка деактивирована успешно"));
+                })
+                .switchIfEmpty(Mono.just(new BaseResponse(false, "Произошла ошибка в процессе деактивации заметки")))
+                .onErrorResume(e -> {
+                    log.error("Ошибка при деактивации заметки", e);
+                    return Mono.just(new BaseResponse(false, "Ошибка сервера: " + e.getMessage()));
+                });
+    }
 
 }

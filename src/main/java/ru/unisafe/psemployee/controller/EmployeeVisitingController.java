@@ -5,6 +5,8 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import ru.unisafe.psemployee.dto.request.AddStationNoteRequest;
+import ru.unisafe.psemployee.dto.request.DisableNoteRequest;
 import ru.unisafe.psemployee.dto.request.VisitStationRequest;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.StationStrVstRstResponse;
@@ -34,4 +36,13 @@ public class EmployeeVisitingController {
         return webVisitingService.createVisit(visitRequest);
     }
 
+    @PostMapping("/addNote")
+    public Mono<BaseResponse> addNote(@Validated @RequestBody AddStationNoteRequest request) {
+        return webVisitingService.addNote(request);
+    }
+
+    @PostMapping("/disableNote")
+    public Mono<BaseResponse> disableNote(@Validated @RequestBody DisableNoteRequest request) {
+        return webVisitingService.disableNote(request);
+    }
 }
