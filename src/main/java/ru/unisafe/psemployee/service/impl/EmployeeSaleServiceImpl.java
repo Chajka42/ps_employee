@@ -125,10 +125,10 @@ public class EmployeeSaleServiceImpl implements EmployeeSaleService {
     }
 
     @Override
-    public Mono<BlockSaleResponseDto> blockSale(BlockSaleDto blockSaleDto) {
-        log.info("Block sale. partnerId: {}, id: {}", blockSaleDto.getPartnerId(), blockSaleDto.getId());
-        TableSaleInfo tableInfo = getTableAndColumnName(PartnerEnum.fromId(blockSaleDto.getPartnerId()));
-        return salesRepository.blockSale(blockSaleDto.getId(), true, tableInfo);
+    public Mono<BlockSaleResponseDto> blockSale(BlockSaleRequest blockSaleRequest) {
+        log.info("Block sale. partnerId: {}, id: {}", blockSaleRequest.getPartnerId(), blockSaleRequest.getId());
+        TableSaleInfo tableInfo = getTableAndColumnName(PartnerEnum.fromId(blockSaleRequest.getPartnerId()));
+        return salesRepository.blockSale(blockSaleRequest.getId(), true, tableInfo);
     }
 
     private TableSaleInfo getTableAndColumnName(PartnerEnum partner) {

@@ -6,7 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import ru.unisafe.psemployee.dto.request.WebRequestReceiveRequest;
+import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.model.WebRequest;
+import ru.unisafe.psemployee.repository.r2dbc.StoreItemsRepository;
+import ru.unisafe.psemployee.repository.r2dbc.WebItemRepository;
+import ru.unisafe.psemployee.repository.r2dbc.WebRequestRepository;
 import ru.unisafe.psemployee.service.WebRequestService;
 
 import java.time.LocalDateTime;
@@ -17,6 +23,9 @@ import java.time.LocalDateTime;
 public class WebRequestServiceImpl implements WebRequestService {
 
     private final DatabaseClient databaseClient;
+    private final WebRequestRepository webRequestRepository;
+    private final WebItemRepository webItemRepository;
+    private final StoreItemsRepository storeItemsRepository;
 
     @Override
     public Flux<WebRequest> getReceivingList(String searchParam) {
@@ -41,6 +50,26 @@ public class WebRequestServiceImpl implements WebRequestService {
                 .bind("search", "%" + searchParam.toLowerCase() + "%")
                 .map((row, metadata) -> mapRowToWebRequest(row))
                 .all();
+    }
+
+    @Override
+    public Mono<BaseResponse> receiveRequest(WebRequestReceiveRequest request) {
+        long requestId = request.getRequestId();
+
+        return webRequestRepository.markAsReceived(requestId)
+                .then(updateMainStore(requestId))
+                .thenReturn(new BaseResponse(true, "Заявка успешно получена"))
+                .onErrorResume(err -> {
+                    log.error("Ошибка при обработке заявки", err);
+                    return Mono.just(new BaseResponse(false, "Ошибка при обновлении данных"));
+                });
+    }
+
+    private Mono<Void> updateMainStore(long requestId) {
+        return webItemRepository.findItemsByRequestId(requestId)
+                .flatMap(item -> storeItemsRepository
+                        .updateItemValue(item.getItemId(), item.getItemValue()))
+                .then();
     }
 
     private WebRequest mapRowToWebRequest(Row row) {

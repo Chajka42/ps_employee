@@ -24,8 +24,8 @@ public class EmployeeSaleController {
     }
 
     @PostMapping("/blockSale")
-    public Mono<BlockSaleResponseDto> blockSale(@Validated @RequestBody BlockSaleDto blockSaleDto) {
-        return employeeSaleService.blockSale(blockSaleDto);
+    public Mono<BlockSaleResponseDto> blockSale(@Validated @RequestBody BlockSaleRequest blockSaleRequest) {
+        return employeeSaleService.blockSale(blockSaleRequest);
     }
 
     //TODO Не работает {"error":"invalid_grant","error_description":"Invalid JWT Signature."} при попытке обращения к Firebase

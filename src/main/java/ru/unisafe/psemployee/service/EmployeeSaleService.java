@@ -10,7 +10,7 @@ import ru.unisafe.psemployee.dto.response.SaleResponse;
 public interface EmployeeSaleService {
     Mono<SaleResponse> getSaleJson(RequestWithStationLogin requestDto);
 
-    Mono<BlockSaleResponseDto> blockSale(BlockSaleDto requestDto);
+    Mono<BlockSaleResponseDto> blockSale(BlockSaleRequest requestDto);
 
     Mono<BaseResponse> addSale(AddSaleRequest requestDto);
 

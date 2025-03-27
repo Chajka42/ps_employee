@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BlockSaleDto {
+public class BlockSaleRequest {
     @NotNull(message = "ID is required")
     private Integer id;
     @NotNull(message = "Partner ID is required")
