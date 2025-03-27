@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class WebVisiting {

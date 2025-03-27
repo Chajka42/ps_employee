@@ -60,7 +60,7 @@ class EmployeeStationServiceImplTest {
         Mono<BaseResponse> responseMono = employeeStationService.createStation(request);
 
         StepVerifier.create(responseMono)
-                .expectNextMatches(response -> response.isSuccess() && "Станция успешно создана".equals(response.getMsg()))
+                .expectNextMatches(response -> response.isSuccess() && "Станция успешно создана".equals(response.getMessage()))
                 .verifyComplete();
     }
 

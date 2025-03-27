@@ -31,7 +31,7 @@ public class FirebaseTokenServiceTest {
         request.setFirebaseToken("validToken");
 
         StepVerifier.create(firebaseTokenService.refreshFirebaseToken(request))
-                .expectNextMatches(response -> response.isSuccess() && response.getMsg().equals("Токен успешно обновлен"))
+                .expectNextMatches(response -> response.isSuccess() && response.getMessage().equals("Токен успешно обновлен"))
                 .verifyComplete();
 
         verify(firebaseRepository, times(1)).updateFirebaseTokenById(123, "validToken");
@@ -44,7 +44,7 @@ public class FirebaseTokenServiceTest {
         request.setId(123);
 
         StepVerifier.create(firebaseTokenService.refreshFirebaseToken(request))
-                .expectNextMatches(response -> response.isSuccess() && response.getMsg().equals("Токен успешно обновлен"))
+                .expectNextMatches(response -> response.isSuccess() && response.getMessage().equals("Токен успешно обновлен"))
                 .verifyComplete();
 
         verify(firebaseRepository, never()).updateFirebaseTokenById(anyInt(), anyString());
@@ -58,7 +58,7 @@ public class FirebaseTokenServiceTest {
         request.setFirebaseToken("none");
 
         StepVerifier.create(firebaseTokenService.refreshFirebaseToken(request))
-                .expectNextMatches(response -> response.isSuccess() && response.getMsg().equals("Токен успешно обновлен"))
+                .expectNextMatches(response -> response.isSuccess() && response.getMessage().equals("Токен успешно обновлен"))
                 .verifyComplete();
 
         verify(firebaseRepository, never()).updateFirebaseTokenById(anyInt(), anyString());
@@ -72,7 +72,7 @@ public class FirebaseTokenServiceTest {
         request.setFirebaseToken("validToken");
 
         StepVerifier.create(firebaseTokenService.refreshFirebaseToken(request))
-                .expectNextMatches(response -> response.isSuccess() && response.getMsg().equals("Токен успешно обновлен"))
+                .expectNextMatches(response -> response.isSuccess() && response.getMessage().equals("Токен успешно обновлен"))
                 .verifyComplete();
 
         verify(firebaseRepository, never()).updateFirebaseTokenById(anyInt(), anyString());

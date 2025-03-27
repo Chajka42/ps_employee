@@ -10,6 +10,7 @@ import ru.unisafe.psemployee.dto.*;
 import ru.unisafe.psemployee.dto.request.VisitStationRequest;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.dto.response.StationStrVstRstResponse;
+import ru.unisafe.psemployee.mapper.WebVisitingMapper;
 import ru.unisafe.psemployee.model.*;
 import ru.unisafe.psemployee.repository.EmployeeRepositoryJOOQ;
 import ru.unisafe.psemployee.repository.QuestRepository;
@@ -60,10 +61,10 @@ public class WebVisitingServiceImpl implements WebVisitingService {
 
         return Mono.zip(webVisitingsMono, storesMono, webRequestsMono, stationNotesMono)
                 .map(tuple -> StationStrVstRstResponse.builder()
-                        .visiting(tuple.getT1().stream().map(this::toVisitingDto).toList())
-                        .stationSummary(tuple.getT2().stream().findFirst().map(this::toStationSummaryDto).orElse(null))
-                        .requests(tuple.getT3().stream().map(this::toRequestDto).toList())
-                        .notes(tuple.getT4().stream().map(this::toNoteDto).toList())
+                        .visiting(tuple.getT1().stream().map(WebVisitingMapper::toVisitingDto).toList())
+                        .stationSummary(tuple.getT2().stream().findFirst().map(WebVisitingMapper::toStationSummaryDto).orElse(null))
+                        .requests(tuple.getT3().stream().map(WebVisitingMapper::toRequestDto).toList())
+                        .notes(tuple.getT4().stream().map(WebVisitingMapper::toNoteDto).toList())
                         .success(true)
                         .build())
                 .onErrorResume(e -> {
@@ -72,74 +73,8 @@ public class WebVisitingServiceImpl implements WebVisitingService {
                 });
     }
 
-    private VisitingDto toVisitingDto(WebVisiting webVisiting) {
-        VisitingDto visitingDto = new VisitingDto();
-        visitingDto.setRequestId(webVisiting.getId());
-        visitingDto.setVisorId(webVisiting.getVisorId());
-        visitingDto.setVisorName(webVisiting.getVisorName());
-        visitingDto.setComment(webVisiting.getComment());
-        visitingDto.setCreated(webVisiting.getCreated());
-        visitingDto.setDefectGathering(webVisiting.getIsDefectGathering());
-        visitingDto.setProblemSolved(webVisiting.getIsProblemSolved());
-        visitingDto.setProblemDescription(webVisiting.getProblemDescription());
-        return visitingDto;
-    }
 
-    private StationSummaryDto toStationSummaryDto(Store store) {
-        return StationSummaryDto.builder()
-                .telGloss(store.getTelGloss())
-                .telMat(store.getTelMat())
-                .telSpy(store.getTelSpy())
-                .telColor(store.getTelColor())
-                .lapColor(store.getLapColor())
-                .lapGloss(store.getLapGloss())
-                .lapMat(store.getLapMat())
-                .watColor(store.getWatColor())
-                .watGloss(store.getWatGloss())
-                .watMat(store.getWatMat())
-                .telSum(store.getTelGloss() + store.getTelMat() + store.getTelSpy() + store.getTelColor())
-                .lapSum(store.getLapColor() + store.getLapGloss() + store.getLapMat())
-                .watSum(store.getWatColor() + store.getWatGloss() + store.getWatMat())
-                .defTelGloss(store.getDefTelGloss())
-                .defTelMat(store.getDefTelMat())
-                .defTelSpy(store.getDefTelSpy())
-                .defTelColor(store.getDefTelColor())
-                .defLapColor(store.getDefLapColor())
-                .defLapGloss(store.getDefLapGloss())
-                .defLapMat(store.getDefLapMat())
-                .defWatColor(store.getDefWatColor())
-                .defWatGloss(store.getDefWatGloss())
-                .defWatMat(store.getDefWatMat())
-                .defTotal(store.getDefTelGloss() + store.getDefTelMat() + store.getDefTelSpy() + store.getDefTelColor() +
-                        store.getDefLapColor() + store.getDefLapGloss() + store.getDefLapMat() +
-                        store.getDefWatColor() + store.getDefWatGloss() + store.getDefWatMat())
-                .build();
-    }
 
-    private RequestDto toRequestDto(WebRequest webRequest) {
-        return RequestDto.builder()
-                .requestId(webRequest.getId())
-                .agregatorType(webRequest.getAgregatorType())
-                .created(webRequest.getCreated())
-                .directionType(webRequest.getDirectionType())
-                .isBoxed(webRequest.getIsBoxed())
-                .isCompleted(webRequest.getIsCompleted())
-                .sdekId(webRequest.getSdekId())
-                .visorId(webRequest.getVisorId())
-                .visorName(webRequest.getVisorName())
-                .build();
-    }
-
-    private NoteDto toNoteDto(StationNote stationNote) {
-        return NoteDto.builder()
-                .note(stationNote.getNote())
-                .created(stationNote.getCreated())
-                .employeeName(stationNote.getEmployeeName())
-                .id(stationNote.getId())
-                .build();
-    }
-
-    //TODO оттестировать этот пиздец
     @Override
     public Mono<BaseResponse> createVisit(VisitStationRequest request) {
         boolean isDefectGathering = request.isDefectGathering();
@@ -152,14 +87,15 @@ public class WebVisitingServiceImpl implements WebVisitingService {
         Mono<String> addressMono = openStreetMapService.getAddressFromCoordinates(request.getLat(), request.getLon());
 
         Mono<Void> resetDefects = isDefectGathering ? storeRepository.resetStoreDefects(login) : Mono.empty();
-
         Mono<Void> updateProblemDate = isProblemSolved
                 ? ttsRepository.updateProblemSolvedDateByLogin(login, LocalDateTime.now())
                 : Mono.empty();
 
         Mono<WebVisiting> createVisit = Mono.zip(visorNameMono, visorIdMono, addressMono)
-                .map(tuple -> toWebVisiting(request, tuple.getT1(), tuple.getT2(), tuple.getT3()))
-                .flatMap(webVisitingRepository::save);
+                .map(tuple -> WebVisitingMapper.toWebVisiting(request, tuple.getT1(), tuple.getT2(), tuple.getT3()))
+                .doOnNext(webVisiting -> log.info(webVisiting.toString()))
+                .flatMap(webVisitingRepository::save)
+                .cache();
 
         Mono<Boolean> insertItems = createVisit.flatMap(visit -> {
             if (request.getDataList() != null && !request.getDataList().isEmpty() && Objects.nonNull(visit.getId())) {
@@ -177,8 +113,12 @@ public class WebVisitingServiceImpl implements WebVisitingService {
                             return wi;
                         })
                         .collectList()
-                        .map(webItemRepository::saveAll) // saveAll уже возвращает Mono<Void>
-                        .then(Mono.just(true));
+                        .map(webItemRepository::saveAll)
+                        .thenReturn(true)
+                        .onErrorResume(e -> {
+                            log.error("Ошибка при вставке элементов визита", e);
+                            return Mono.just(false);
+                        });
             }
             return Mono.just(false);
         });
@@ -192,9 +132,10 @@ public class WebVisitingServiceImpl implements WebVisitingService {
             boolean isPlan = problem.contains("план");
             boolean isFrod = problem.contains("фрод");
 
-            return questRepository.updateQuestProgress(visorId, isUpdate, isNoCuts, isDefect, isPlan, isFrod);
-        })
-                : Mono.empty();
+            return questRepository.updateQuestProgress(visorId, isUpdate, isNoCuts, isDefect, isPlan, isFrod)
+                    .then();
+
+        }) : Mono.empty();
 
         return resetDefects
                 .then(updateProblemDate)
@@ -202,26 +143,11 @@ public class WebVisitingServiceImpl implements WebVisitingService {
                 .flatMap(visit -> insertItems)
                 .then(updateQuestProgress)
                 .thenReturn(new BaseResponse(true, "Визит успешно создан"))
-                .onErrorResume(e -> Mono.just(new BaseResponse(false, "Ошибка сервера: " + e.getMessage())));
+                .onErrorResume(e -> {
+                    log.error("Ошибка при создании визита", e);
+                    return Mono.just(new BaseResponse(false, "Ошибка сервера: " + e.getMessage()));
+                });
     }
 
-    private WebVisiting toWebVisiting(VisitStationRequest request, String visorName, Integer visorId, String visitingAddress) {
-        return WebVisiting.builder()
-                .login(request.getLogin())
-                .stationCode(request.getCode())
-                .visorId(visorId)
-                .visorName(visorName)
-                .address(request.getAddress())
-                .partnerId(request.getPartnerId())
-                .partnerName(request.getPartnerName())
-                .created(LocalDateTime.now())
-                .lat(request.getLat())
-                .lon(request.getLon())
-                .visitAddress(visitingAddress)
-                .isDefectGathering(request.isDefectGathering())
-                .isProblemSolved(request.isProblemSolved())
-                .problemDescription(request.getProblemDescription())
-                .comment(request.getComment())
-                .build();
-    }
+
 }

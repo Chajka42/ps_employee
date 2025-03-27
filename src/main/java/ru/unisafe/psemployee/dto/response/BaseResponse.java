@@ -14,11 +14,11 @@ public class BaseResponse {
     private boolean success;
 
     @Schema(description = "Сообщение об ошибке или статусе", example = "Пароль верный")
-    private String msg;
+    private String message;
 
-    public BaseResponse(boolean success, String msg) {
+    public BaseResponse(boolean success, String message) {
         this.success = success;
-        this.msg = msg;
+        this.message = message;
     }
 
 }
