@@ -1,6 +1,5 @@
 package ru.unisafe.psemployee.service;
 
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import reactor.core.publisher.Mono;
 import ru.unisafe.psemployee.dto.request.AddStationNoteRequest;
 import ru.unisafe.psemployee.dto.request.DisableNoteRequest;
@@ -10,6 +9,7 @@ import ru.unisafe.psemployee.dto.response.StationStrVstRstResponse;
 import ru.unisafe.psemployee.model.WebVisiting;
 
 public interface WebVisitingService {
+
     Mono<WebVisiting> findWebVisitingById(Long id);
 
     Mono<StationStrVstRstResponse> getStationStrVstRst(String login);
@@ -19,4 +19,5 @@ public interface WebVisitingService {
     Mono<BaseResponse> addNote(AddStationNoteRequest request);
 
     Mono<BaseResponse> disableNote(DisableNoteRequest request);
+
 }
