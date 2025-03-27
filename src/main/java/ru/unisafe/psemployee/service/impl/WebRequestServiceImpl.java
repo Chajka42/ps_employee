@@ -7,11 +7,9 @@ import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import ru.unisafe.psemployee.model.WebRequest;
-import ru.unisafe.psemployee.service.WebRequestSearchService;
 import ru.unisafe.psemployee.service.WebRequestService;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -19,19 +17,30 @@ import java.util.Map;
 public class WebRequestServiceImpl implements WebRequestService {
 
     private final DatabaseClient databaseClient;
-    private final WebRequestSearchService searchService;
 
     @Override
     public Flux<WebRequest> getReceivingList(String searchParam) {
-        Map<String, Object> params = searchService.buildParams(searchParam);
-        String query = searchService.buildReceivingListQuery(params);
+        String query = """
+                SELECT * FROM web_requests
+                WHERE is_completed = true
+                  AND (direction_type = 'Вернуть на склад' OR direction_type = 'Реверсная заявка')
+                  AND is_received = false
+                  AND (
+                       CAST(id AS CHAR) LIKE :search
+                    OR LOWER(login) LIKE LOWER(:search)
+                    OR LOWER(station_code) LIKE LOWER(:search)
+                    OR LOWER(visor_name) LIKE LOWER(:search)
+                    OR LOWER(address) LIKE LOWER(:search)
+                    OR CAST(sdek_id AS CHAR) LIKE :search
+                    OR LOWER(comment) LIKE LOWER(:search)
+                    OR LOWER(partner_name) LIKE LOWER(:search)
+                  )
+                """;
 
-        DatabaseClient.GenericExecuteSpec spec = databaseClient.sql(query);
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            spec = spec.bind(entry.getKey(), entry.getValue());
-        }
-
-        return spec.map((row, metadata) -> mapRowToWebRequest(row)).all();
+        return databaseClient.sql(query)
+                .bind("search", "%" + searchParam.toLowerCase() + "%")
+                .map((row, metadata) -> mapRowToWebRequest(row))
+                .all();
     }
 
     private WebRequest mapRowToWebRequest(Row row) {
