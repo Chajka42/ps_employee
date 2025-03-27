@@ -32,7 +32,7 @@ public class WebVisitingServiceImpl implements WebVisitingService {
     private final WebRequestRepository webRequestRepository;
     private final StationNoteRepository stationNoteRepository;
     private final TtsRepository ttsRepository;
-    private final WebItemRepository webItemRepository;
+    private final WebItemsRepository webItemsRepository;
 
     private final EmployeeRepositoryJOOQ employeeRepository;
     private final QuestRepository questRepository;
@@ -100,7 +100,7 @@ public class WebVisitingServiceImpl implements WebVisitingService {
                 return Flux.fromIterable(request.getDataList())
                         .map(webItem -> {
                             WebItem wi = new WebItem();
-                            wi.setRequestId(0);
+                            wi.setRequestId(0L);
                             wi.setToTt(true);
                             wi.setLogin(login);
                             wi.setItemId(webItem.getId());
@@ -111,7 +111,7 @@ public class WebVisitingServiceImpl implements WebVisitingService {
                             return wi;
                         })
                         .collectList()
-                        .map(webItemRepository::saveAll)
+                        .map(webItemsRepository::saveAll)
                         .thenReturn(true)
                         .onErrorResume(e -> {
                             log.error("Ошибка при вставке элементов визита", e);

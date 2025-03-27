@@ -13,7 +13,7 @@ import ru.unisafe.psemployee.dto.request.WebRequestReceiveRequest;
 import ru.unisafe.psemployee.dto.response.BaseResponse;
 import ru.unisafe.psemployee.model.WebRequest;
 import ru.unisafe.psemployee.repository.r2dbc.StoreItemsRepository;
-import ru.unisafe.psemployee.repository.r2dbc.WebItemRepository;
+import ru.unisafe.psemployee.repository.r2dbc.WebItemsRepository;
 import ru.unisafe.psemployee.repository.r2dbc.WebRequestRepository;
 import ru.unisafe.psemployee.service.WebRequestService;
 
@@ -26,7 +26,7 @@ public class WebRequestServiceImpl implements WebRequestService {
 
     private final DatabaseClient databaseClient;
     private final WebRequestRepository webRequestRepository;
-    private final WebItemRepository webItemRepository;
+    private final WebItemsRepository webItemsRepository;
     private final StoreItemsRepository storeItemsRepository;
 
     @Override
@@ -75,7 +75,7 @@ public class WebRequestServiceImpl implements WebRequestService {
     }
 
     private Mono<Void> updateMainStore(long requestId) {
-        return webItemRepository.findItemsByRequestId(requestId)
+        return webItemsRepository.findItemsByRequestId(requestId)
                 .flatMap(item -> storeItemsRepository
                         .updateItemValue(item.getItemId(), item.getItemValue()))
                 .then();

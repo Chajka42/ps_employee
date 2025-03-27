@@ -9,17 +9,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import ru.unisafe.psemployee.dto.StoreItemDto;
-import ru.unisafe.psemployee.dto.VisitingDto;
 import ru.unisafe.psemployee.dto.request.VisitStationRequest;
 import ru.unisafe.psemployee.mapper.WebVisitingMapper;
 import ru.unisafe.psemployee.model.WebVisiting;
 import ru.unisafe.psemployee.repository.EmployeeRepositoryJOOQ;
-import ru.unisafe.psemployee.repository.QuestRepository;
 import ru.unisafe.psemployee.repository.r2dbc.*;
 import ru.unisafe.psemployee.service.OpenStreetMapService;
 import static org.mockito.ArgumentMatchers.any;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -33,7 +30,7 @@ public class WebVisitingServiceTest {
     @Mock
     private WebVisitingRepository webVisitingRepository;
     @Mock
-    private WebItemRepository webItemRepository;
+    private WebItemsRepository webItemsRepository;
     @Mock
     private EmployeeRepositoryJOOQ employeeRepository;
     @Mock
@@ -78,7 +75,7 @@ public class WebVisitingServiceTest {
             return Mono.just(visit);
         });
 
-        when(webItemRepository.saveAll(anyList())).thenReturn(Flux.empty());
+        when(webItemsRepository.saveAll(anyList())).thenReturn(Flux.empty());
 
         StepVerifier.create(webVisitingService.createVisit(request))
                 .expectNextMatches(response -> response.isSuccess() &&
@@ -89,7 +86,7 @@ public class WebVisitingServiceTest {
         verify(employeeRepository, times(1)).getEmployeeVisorId(anyString());
         verify(openStreetMapService, times(1)).getAddressFromCoordinates(anyDouble(), anyDouble());
         verify(webVisitingRepository, times(1)).save(any(WebVisiting.class));
-        verify(webItemRepository, times(1)).saveAll(anyList());
+        verify(webItemsRepository, times(1)).saveAll(anyList());
     }
 
     @Test

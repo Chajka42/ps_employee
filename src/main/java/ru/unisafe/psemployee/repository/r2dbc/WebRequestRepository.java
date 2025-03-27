@@ -28,4 +28,8 @@ public interface WebRequestRepository extends R2dbcRepository<WebRequest, Long> 
         WHERE id = :requestId
     """)
     Mono<Integer> markAsReceived(@Param("requestId") Long requestId);
+
+    @Modifying
+    @Query("UPDATE web_requests SET was_edited = NOW() WHERE id = :requestId")
+    Mono<Void> updateWasEdited(@Param("requestId") Long requestId);
 }
