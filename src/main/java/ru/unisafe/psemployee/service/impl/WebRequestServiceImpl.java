@@ -7,9 +7,11 @@ import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import ru.unisafe.psemployee.model.WebRequest;
+import ru.unisafe.psemployee.service.WebRequestSearchService;
 import ru.unisafe.psemployee.service.WebRequestService;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -17,48 +19,19 @@ import java.time.LocalDateTime;
 public class WebRequestServiceImpl implements WebRequestService {
 
     private final DatabaseClient databaseClient;
+    private final WebRequestSearchService searchService;
 
     @Override
     public Flux<WebRequest> getReceivingList(String searchParam) {
-        String baseQuery = """
-            SELECT * FROM web_requests
-            WHERE is_completed = true
-              AND (direction_type = 'Вернуть на склад' OR direction_type = 'Реверсная заявка')
-              AND is_received = false
-        """;
+        Map<String, Object> params = searchService.buildParams(searchParam);
+        String query = searchService.buildReceivingListQuery(params);
 
-        String query = buildDynamicQuery(baseQuery, searchParam);
-        log.info("Executing query: {}", query);
-
-        return databaseClient.sql(query)
-                .map((row, metadata) -> mapRowToWebRequest(row))
-                .all();
-    }
-
-    private String buildDynamicQuery(String baseQuery, String searchParam) {
-        if (searchParam == null || searchParam.isBlank()) {
-            return baseQuery;
+        DatabaseClient.GenericExecuteSpec spec = databaseClient.sql(query);
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            spec = spec.bind(entry.getKey(), entry.getValue());
         }
 
-        StringBuilder query = new StringBuilder(baseQuery);
-
-        if (searchParam.matches("\\d+")) {
-            if (searchParam.length() > 9) {
-                query.append(" AND sdek_id = '").append(searchParam).append("'");
-            } else {
-                query.append(" AND id = '").append(searchParam).append("'");
-            }
-        } else {
-            if (searchParam.toLowerCase().startsWith("station")) {
-                query.append(" AND login = '").append(searchParam).append("'");
-            } else if (searchParam.length() < 8) {
-                query.append(" AND station_code = '").append(searchParam).append("'");
-            } else {
-                query.append(" AND address ILIKE '%").append(searchParam).append("%'");
-            }
-        }
-
-        return query.toString();
+        return spec.map((row, metadata) -> mapRowToWebRequest(row)).all();
     }
 
     private WebRequest mapRowToWebRequest(Row row) {
