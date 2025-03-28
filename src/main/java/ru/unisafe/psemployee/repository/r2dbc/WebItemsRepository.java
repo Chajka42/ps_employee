@@ -18,4 +18,8 @@ public interface WebItemsRepository extends R2dbcRepository<WebItem, Long> {
     Flux<WebItem> findItemsByRequestId(@Param("requestId") Long requestId);
 
 
+    @Query("""
+                SELECT * FROM web_items WHERE request_id = :requestId and is_to_tt = :isToTt
+            """)
+    Flux<WebItem> findAllByToTtAndRequestId(boolean isToTt, @Param("requestId") Long requestId);
 }

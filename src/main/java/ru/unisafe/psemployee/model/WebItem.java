@@ -1,6 +1,7 @@
 package ru.unisafe.psemployee.model;
 
 import lombok.*;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Getter
@@ -11,6 +12,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public class WebItem {
     private Long id;
     private Long requestId;
+    @Column("is_to_tt")
     private boolean isToTt;
     private int itemId;
     private String itemName;
